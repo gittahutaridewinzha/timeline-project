@@ -3,7 +3,7 @@
 @section('content')
 <div class="main-panel" style="margin-top: 10px;">
     <div class="content-wrapper">
-        <div class="col-lg-8 mx-auto grid-margin stretch-card">
+        <div class="col-lg-12 mx-auto grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title text-center mb-4">Tambah Project</h4>
@@ -24,7 +24,8 @@
                         {{-- Hidden input untuk user yang sedang login --}}
                         <input type="hidden" name="id_project_manager" value="{{ Auth::user()->id }}">
 
-                        <button type="submit" class="btn btn-primary w-100">Simpan</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>
                     </form>
                 </div>
             </div>
