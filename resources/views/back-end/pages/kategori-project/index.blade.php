@@ -14,12 +14,10 @@
 
                 <h2 class="text-center mb-4">Daftar Category Project</h2>
 
-                <!-- Tombol trigger modal -->
                 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#tambahPekerjaanModal">
                     <i class="bi bi-plus"></i> Tambah Category
                 </button>
 
-                <!-- Modal Tambah Pekerjaan -->
                 <div class="modal fade" id="tambahPekerjaanModal" tabindex="-1" aria-labelledby="tambahPekerjaanModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
@@ -78,8 +76,8 @@
                                         <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1"
                                             aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
                                             <div class="modal-dialog">
-                                                <form action="{{ route('category-project.update', $item->id) }}" method="POST"
-                                                    class="modal-content">
+                                                <form action="{{ route('category-project.update', $item->id) }}"
+                                                    method="POST" class="modal-content">
                                                     @csrf
                                                     @method('PUT')
 
@@ -121,7 +119,7 @@
                                                             aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        Apakah Anda yakin ingin menghapus Pekerjaan ini?
+                                                        Apakah Anda yakin ingin menghapus Kategori Project ini?
                                                     </div>
                                                     <div class="modal-footer">
                                                         <form action="{{ route('category-project.destroy', $item->id) }}"

@@ -15,10 +15,21 @@ class Project extends Model
         'nama_project',
         'deskripsi',
         'id_project_manager',
+        'category_id',
     ];
 
     public function ProjectManager()
     {
         return $this->belongsTo(User::class, 'id_project_manager');
+    }
+
+    public function CategoryProject()
+    {
+        return $this->belongsTo(CategoryProject::class);
+    }
+
+    public function jobTypes()
+    {
+        return $this->belongsToMany(JobType::class, 'project_job_types', 'project_id', 'job_id');
     }
 }

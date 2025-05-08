@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CategoryProject;
+use App\Models\JobType;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardProjectController extends Controller
 {
@@ -14,7 +17,7 @@ class DashboardProjectController extends Controller
     public function index()
     {
         $project = Project::where('id_project_manager', Auth::id())->paginate(10);
-        return view('back-end.project.index', compact('project'));
+        return view('back-end.pages.project.index', compact('project'));
     }
 
     /**
@@ -22,7 +25,9 @@ class DashboardProjectController extends Controller
      */
     public function create()
     {
-        return view('back-end.project.create');
+        $categoryProject = CategoryProject::all();
+        $jobTypes = JobType::all();
+        return view('back-end.pages.project.create', compact('categoryProject', 'jobTypes'));
     }
 
     /**
@@ -33,13 +38,27 @@ class DashboardProjectController extends Controller
         $request->validate([
             'nama_project' => 'required|string|max:255',
             'deskripsi' => 'required|string',
+            'category_id' => 'required|exists:category_projects,id',
+            'job_types' => 'required|array',
+            'job_types.*' => 'exists:job_types,id',
         ]);
 
-        Project::create([
+        $project = Project::create([
             'nama_project' => $request->nama_project,
             'deskripsi' => $request->deskripsi,
+            'category_id' => $request->category_id,
             'id_project_manager' => Auth::id(),
         ]);
+
+        foreach ($request->job_types as $jobTypeId) {
+            DB::table('project_job_types')->insert([
+                'project_id' => $project->id,
+                'category_id' => $request->category_id,
+                'job_id' => $jobTypeId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         return redirect()->route('project.index')->with('success', 'Project berhasil ditambahkan.');
     }
@@ -61,7 +80,11 @@ class DashboardProjectController extends Controller
             abort(403);
         }
 
-        return view('back-end.project.edit', compact('project'));
+        $project->load('jobTypes');
+
+        $categoryProject = CategoryProject::all();
+        $jobTypes = JobType::all();
+        return view('back-end.pages.project.edit', compact('project', 'categoryProject', 'jobTypes'));
     }
 
     /**
@@ -76,12 +99,21 @@ class DashboardProjectController extends Controller
         $request->validate([
             'nama_project' => 'required|string|max:255',
             'deskripsi' => 'required|string',
+            'category_id' => 'required|exists:category_projects,id',
+            'job_types' => 'required|array|min:1',
         ]);
 
         $project->update([
             'nama_project' => $request->nama_project,
             'deskripsi' => $request->deskripsi,
+            'category_id' => $request->category_id,
         ]);
+
+        $project->jobTypes()->sync(
+            collect($request->job_types)->mapWithKeys(function ($jobTypeId) use ($request) {
+                return [$jobTypeId => ['category_id' => $request->category_id]];
+            })
+        );
 
         return redirect()->route('project.index')->with('success', 'Project berhasil diperbarui.');
     }
@@ -94,6 +126,8 @@ class DashboardProjectController extends Controller
         if ($project->id_project_manager !== Auth::id()) {
             abort(403);
         }
+
+        $project->jobTypes()->detach();
 
         $project->delete();
         return redirect()->route('project.index')->with('success', 'Project berhasil dihapus.');
