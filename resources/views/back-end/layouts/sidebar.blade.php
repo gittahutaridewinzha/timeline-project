@@ -91,11 +91,9 @@
                                         <i class="bi bi-box-arrow-right"></i><span class="ms-2">Logout</span>
 
                                     </div>
-
-
                             </button>
                         </form>
-                       </a>
+                       </a>
                    </div>
                </li>
                <li class="nav-item nav-settings d-none d-lg-flex">
@@ -319,7 +317,6 @@
                        </a>
                    </li>
                @endif
-
 
                @if (Auth::user()->hasAccessToMenu('project'))
                    <li class="nav-item">
