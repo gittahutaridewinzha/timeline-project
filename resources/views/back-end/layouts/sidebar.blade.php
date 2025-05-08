@@ -83,9 +83,17 @@
                            Settings
                        </a>
                        <a class="dropdown-item">
-                           <i class="ti-power-off text-primary"></i>
-                           Logout
-                       </a>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" style="background: none; border: none; padding: 0; color: inherit; font: inherit; display: inline;">
+
+                                    <div class="icon_menu">
+                                        <i class="bi bi-box-arrow-right"></i><span class="ms-2">Logout</span>
+
+                                    </div>
+                            </button>
+                        </form>
+                       </a>
                    </div>
                </li>
                <li class="nav-item nav-settings d-none d-lg-flex">
@@ -309,7 +317,6 @@
                        </a>
                    </li>
                @endif
-
 
                @if (Auth::user()->hasAccessToMenu('project'))
                    <li class="nav-item">
