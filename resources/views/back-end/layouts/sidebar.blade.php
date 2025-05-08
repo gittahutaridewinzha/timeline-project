@@ -301,6 +301,35 @@
                    </li>
                @endif
 
+               @if (Auth::user()->hasAccessToMenu('job-type'))
+                   <li class="nav-item">
+                       <a class="nav-link" href="{{ url('/job-type') }}">
+                           <i class="bi bi-briefcase menu-icon"></i> {{-- Ikon briefcase untuk Job Type --}}
+                           <span class="menu-title">Job Type</span>
+                       </a>
+                   </li>
+               @endif
+
+
+               @if (Auth::user()->hasAccessToMenu('project'))
+                   <li class="nav-item">
+                       <a class="nav-link" href="{{ url('/project') }}">
+                           <i class="bi bi-folder2 menu-icon"></i> {{-- Ikon folder untuk Project --}}
+                           <span class="menu-title">Project</span>
+                       </a>
+                   </li>
+               @endif
+
+               @if (Auth::user()->hasAccessToMenu('pengerjaan'))
+                   <li class="nav-item">
+                       <a class="nav-link" href="{{ url('/pengerjaan') }}">
+                           <i class="bi bi-check2-square menu-icon"></i> {{-- Ikon checklist untuk Pengerjaan --}}
+                           <span class="menu-title">Pengerjaan</span>
+                       </a>
+                   </li>
+               @endif
+
+
                {{-- Otoritas --}}
                @if (Auth::user()->hasAccessToMenu('register') ||
                        Auth::user()->hasAccessToMenu('data-admin') ||
