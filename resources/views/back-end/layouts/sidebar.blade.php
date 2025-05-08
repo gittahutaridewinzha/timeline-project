@@ -83,17 +83,19 @@
                            Settings
                        </a>
                        <a class="dropdown-item">
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" style="background: none; border: none; padding: 0; color: inherit; font: inherit; display: inline;">
+                           <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                               @csrf
+                               <button type="submit"
+                                   style="background: none; border: none; padding: 0; color: inherit; font: inherit; display: inline;">
 
-                                    <div class="icon_menu">
-                                        <i class="bi bi-box-arrow-right"></i><span class="ms-2">Logout</span>
+                                   <div class="icon_menu">
+                                       <i class="bi bi-box-arrow-right"></i><span class="ms-2">Logout</span>
 
-                                    </div>
-                            </button>
-                        </form>
-                       </a>
+                                   </div>
+                               </button>
+                           </form>
+
+                       </a>
                    </div>
                </li>
                <li class="nav-item nav-settings d-none d-lg-flex">
@@ -309,14 +311,35 @@
                    </li>
                @endif
 
-               @if (Auth::user()->hasAccessToMenu('job-type'))
-                   <li class="nav-item">
-                       <a class="nav-link" href="{{ url('/job-type') }}">
-                           <i class="bi bi-briefcase menu-icon"></i> {{-- Ikon briefcase untuk Job Type --}}
-                           <span class="menu-title">Job Type</span>
-                       </a>
-                   </li>
-               @endif
+                {{-- Otoritas --}}
+                @if (Auth::user()->hasAccessToMenu('job-type') ||
+                Auth::user()->hasAccessToMenu('category-project'))
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
+                    aria-controls="ui-basic">
+                    <i class="bi bi-shield-lock menu-icon"></i>
+                    <span class="menu-title">Master Data</span>
+                    <i class="menu-arrow"></i>
+                </a>
+
+                <div class="collapse" id="ui-basic">
+                    <ul class="nav flex-column sub-menu">
+                        @if (Auth::user()->hasAccessToMenu('job-type'))
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url('/job-type') }}">Job Type</a>
+                            </li>
+                        @endif
+                        @if (Auth::user()->hasAccessToMenu('category-project'))
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url('/category-project') }}">Category Project</a>
+                            </li>
+                        @endif
+
+                    </ul>
+                </div>
+            </li>
+        @endif
+
 
                @if (Auth::user()->hasAccessToMenu('project'))
                    <li class="nav-item">
@@ -335,6 +358,8 @@
                        </a>
                    </li>
                @endif
+
+
 
 
                {{-- Otoritas --}}
