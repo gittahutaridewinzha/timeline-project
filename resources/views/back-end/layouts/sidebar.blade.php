@@ -311,34 +311,31 @@
                    </li>
                @endif
 
-                {{-- Otoritas --}}
-                @if (Auth::user()->hasAccessToMenu('job-type') ||
-                Auth::user()->hasAccessToMenu('category-project'))
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
-                    aria-controls="ui-basic">
-                    <i class="bi bi-shield-lock menu-icon"></i>
-                    <span class="menu-title">Master Data</span>
-                    <i class="menu-arrow"></i>
-                </a>
-
-                <div class="collapse" id="ui-basic">
-                    <ul class="nav flex-column sub-menu">
-                        @if (Auth::user()->hasAccessToMenu('job-type'))
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url('/job-type') }}">Job Type</a>
-                            </li>
-                        @endif
-                        @if (Auth::user()->hasAccessToMenu('category-project'))
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url('/category-project') }}">Category Project</a>
-                            </li>
-                        @endif
-
-                    </ul>
-                </div>
-            </li>
-        @endif
+               {{-- Master Data --}}
+               @if (Auth::user()->hasAccessToMenu('job-type') || Auth::user()->hasAccessToMenu('category-project'))
+                   <li class="nav-item">
+                       <a class="nav-link" data-bs-toggle="collapse" href="#collapseMaster" aria-expanded="false"
+                           aria-controls="collapseMaster">
+                           <i class="bi bi-database menu-icon"></i>
+                           <span class="menu-title">Master Data</span>
+                           <i class="menu-arrow"></i>
+                       </a>
+                       <div class="collapse" id="collapseMaster">
+                           <ul class="nav flex-column sub-menu">
+                               @if (Auth::user()->hasAccessToMenu('job-type'))
+                                   <li class="nav-item">
+                                       <a class="nav-link" href="{{ url('/job-type') }}">Job Type</a>
+                                   </li>
+                               @endif
+                               @if (Auth::user()->hasAccessToMenu('category-project'))
+                                   <li class="nav-item">
+                                       <a class="nav-link" href="{{ url('/category-project') }}">Category Project</a>
+                                   </li>
+                               @endif
+                           </ul>
+                       </div>
+                   </li>
+               @endif
 
 
                @if (Auth::user()->hasAccessToMenu('project'))
@@ -367,14 +364,13 @@
                        Auth::user()->hasAccessToMenu('data-admin') ||
                        Auth::user()->hasAccessToMenu('roles'))
                    <li class="nav-item">
-                       <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
-                           aria-controls="ui-basic">
+                       <a class="nav-link" data-bs-toggle="collapse" href="#collapseOtoritas" aria-expanded="false"
+                           aria-controls="collapseOtoritas">
                            <i class="bi bi-shield-lock menu-icon"></i>
                            <span class="menu-title">Otoritas</span>
                            <i class="menu-arrow"></i>
                        </a>
-
-                       <div class="collapse" id="ui-basic">
+                       <div class="collapse" id="collapseOtoritas">
                            <ul class="nav flex-column sub-menu">
                                @if (Auth::user()->hasAccessToMenu('register'))
                                    <li class="nav-item">
