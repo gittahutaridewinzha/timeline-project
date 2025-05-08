@@ -36,7 +36,7 @@
                                 @foreach ($project as $project)
                                 <tr>
                                     <td>{{ $project->nama_project }}</td>
-                                    <td>{{ Str::limit($project->deskripsi, 50) }}</td>
+                                    <td>{!! $project->deskripsi !!}</td>
                                     <td>
                                         <a href="{{ route('project.edit', $project->id) }}" class="btn btn-sm btn-warning text-white">
                                             <i class="bi bi-pencil-square"></i>
