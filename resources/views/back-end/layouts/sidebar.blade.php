@@ -83,18 +83,8 @@
                            Settings
                        </a>
                        <a class="dropdown-item">
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" style="background: none; border: none; padding: 0; color: inherit; font: inherit; display: inline;">
-
-                                    <div class="icon_menu">
-                                        <i class="bi bi-box-arrow-right"></i><span class="ms-2">Logout</span>
-
-                                    </div>
-
-
-                            </button>
-                        </form>
+                           <i class="ti-power-off text-primary"></i>
+                           Logout
                        </a>
                    </div>
                </li>
@@ -319,7 +309,6 @@
                        </a>
                    </li>
                @endif
-
 
                @if (Auth::user()->hasAccessToMenu('project'))
                    <li class="nav-item">
