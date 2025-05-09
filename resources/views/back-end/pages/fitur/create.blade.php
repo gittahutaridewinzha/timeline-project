@@ -74,60 +74,147 @@
                                         <div id="collapse{{ $fitur->id }}" class="accordion-collapse collapse"
                                             data-bs-parent="#fiturAccordion">
                                             <div class="accordion-body">
+                                                {{-- Form Update --}}
                                                 <form action="{{ route('fitur.update', $fitur->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Nama Fitur</label>
-                                                        <input type="text" name="name" value="{{ $fitur->name }}"
-                                                            class="form-control">
+                                                        <input type="text" name="name" value="{{ $fitur->name }}" class="form-control">
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Detail Fitur</label>
                                                         <div id="detailContainer-{{ $fitur->id }}">
-                                                            @forelse ($fitur->detailFiturs as $detail)
-                                                                <div class="form-group mb-3 detail-item position-relative">
-                                                                    <input type="text"
-                                                                        name="details[{{ $detail->id }}]"
-                                                                        value="{{ $detail->name }}"
-                                                                        class="form-control form-control-sm mb-2"
-                                                                        placeholder="Detail fitur">
-                                                                    <button type="button"
-                                                                        class="btn btn-sm btn-link text-danger position-absolute end-0 top-0 mt-2 me-2 remove-detail"
-                                                                        title="Hapus">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
+                                                            @foreach ($fitur->detailFiturs as $detail)
+                                                                <div class="form-group mb-2 detail-item">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <input type="text"
+                                                                            name="details[{{ $detail->id }}]"
+                                                                            value="{{ $detail->name }}"
+                                                                            class="form-control form-control-sm"
+                                                                            placeholder="Detail fitur">
+
+                                                                        <!-- Checkbox dan ikon di kanan -->
+                                                                        <div class="ms-2 d-flex align-items-center">
+                                                                            <input type="checkbox" name="deleted_details[]"
+                                                                                value="{{ $detail->id }}"
+                                                                                class="form-check-input me-1">
+                                                                            <label class="form-check-label mt-2">
+                                                                                <i class="bi bi-trash"></i>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            @empty
-                                                                <p class="text-muted">Belum ada detail.</p>
-                                                            @endforelse
+                                                            @endforeach
                                                         </div>
 
-                                                        <button type="button"
-                                                            class="btn btn-outline-primary btn-sm mb-3 addDetailBtn"
-                                                            data-fitur-id="{{ $fitur->id }}">
-                                                            <i class="bi bi-plus-circle"></i> Tambah Detail
-                                                        </button>
+                                                        @if (!isset($fitur->new_details))
+                                                            <div class="form-group mb-2">
+                                                                <input type="text" name="new_details[]"
+                                                                    class="form-control form-control-sm"
+                                                                    placeholder="Detail fitur baru">
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <input type="submit" name="add_detail" value="Tambah Detail"
+                                                            class="btn btn-outline-primary btn-sm">
                                                     </div>
 
                                                     <div class="d-flex justify-content-end gap-2">
-                                                        <form action="{{ route('fitur.destroy', $fitur->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus fitur ini beserta semua detailnya?')">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                                <i class="bi bi-trash"></i> Hapus
-                                                            </button>
-                                                        </form>
-
                                                         <button type="submit" class="btn btn-sm btn-success">
                                                             <i class="bi bi-save"></i> Update
                                                         </button>
+                                                        <button type="button" class="btn btn-sm btn-danger"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#confirmDeleteModal{{ $fitur->id }}">
+                                                            <i class="bi bi-trash"></i> Hapus
+                                                        </button>
                                                     </div>
-
                                                 </form>
+
+
+
+
+                                                <!-- Modal Konfirmasi -->
+                                                <div class="modal fade" id="confirmDeleteModal{{ $fitur->id }}"
+                                                    tabindex="-1"
+                                                    aria-labelledby="confirmDeleteModalLabel{{ $fitur->id }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <form action="{{ route('fitur.destroy', $fitur->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Konfirmasi Hapus Fitur</h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    Yakin ingin menghapus fitur
+                                                                    <strong>{{ $fitur->name }}</strong> beserta semua
+                                                                    detailnya?
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button"
+                                                                        class="btn btn-secondary btn-sm"
+                                                                        data-bs-dismiss="modal">Batal</button>
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger btn-sm">Ya, Hapus</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <!-- Modal Konfirmasi Hapus -->
+                                                <div class="modal fade" id="confirmDeleteModal{{ $fitur->id }}"
+                                                    tabindex="-1"
+                                                    aria-labelledby="confirmDeleteModalLabel{{ $fitur->id }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <form action="{{ route('fitur.destroy', $fitur->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title"
+                                                                        id="confirmDeleteModalLabel{{ $fitur->id }}">
+                                                                        Konfirmasi Hapus Fitur
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    Yakin ingin menghapus fitur
+                                                                    <strong>{{ $fitur->name }}</strong> beserta semua
+                                                                    detailnya?
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button"
+                                                                        class="btn btn-secondary btn-sm"
+                                                                        data-bs-dismiss="modal">Batal</button>
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger btn-sm">Ya, Hapus</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
+
+
                                         </div>
                                     </div>
                                 @empty
@@ -189,4 +276,7 @@
             }
         });
     </script>
+
+
+
 @endsection
