@@ -16,7 +16,6 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title text-center mb-4">Tambah Fitur</h4>
-
                             <form action="{{ route('fitur.store', ['project' => $project->id]) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="project_id" value="{{ $project->id }}">
@@ -67,12 +66,9 @@
                                 @forelse ($project->fiturs as $fitur)
                                     <div class="accordion-item mb-2">
                                         <h2 class="accordion-header" id="heading{{ $fitur->id }}">
-                                            <button
-                                                class="accordion-button collapsed d-flex justify-content-between align-items-center"
-                                                type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#collapse{{ $fitur->id }}">
-                                                <span>{{ $fitur->name }}</span>
-
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapse{{ $fitur->id }}">
+                                                {{ $fitur->name }}
                                             </button>
                                         </h2>
                                         <div id="collapse{{ $fitur->id }}" class="accordion-collapse collapse"
@@ -90,21 +86,46 @@
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Detail Fitur</label>
-                                                        @forelse ($fitur->detailFiturs as $detail)
-                                                            <input type="text" name="details[{{ $detail->id }}]"
-                                                                value="{{ $detail->name }}"
-                                                                class="form-control form-control-sm mb-2"
-                                                                placeholder="Detail fitur">
-                                                        @empty
-                                                            <p class="text-muted">Belum ada detail.</p>
-                                                        @endforelse
+                                                        <div id="detailContainer-{{ $fitur->id }}">
+                                                            @forelse ($fitur->detailFiturs as $detail)
+                                                                <div class="form-group mb-3 detail-item position-relative">
+                                                                    <input type="text"
+                                                                        name="details[{{ $detail->id }}]"
+                                                                        value="{{ $detail->name }}"
+                                                                        class="form-control form-control-sm mb-2"
+                                                                        placeholder="Detail fitur">
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-link text-danger position-absolute end-0 top-0 mt-2 me-2 remove-detail"
+                                                                        title="Hapus">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            @empty
+                                                                <p class="text-muted">Belum ada detail.</p>
+                                                            @endforelse
+                                                        </div>
+
+                                                        <button type="button"
+                                                            class="btn btn-outline-primary btn-sm mb-3 addDetailBtn"
+                                                            data-fitur-id="{{ $fitur->id }}">
+                                                            <i class="bi bi-plus-circle"></i> Tambah Detail
+                                                        </button>
                                                     </div>
 
-                                                    <div class="text-end">
+                                                    <div class="d-flex justify-content-end gap-2">
+                                                        <form action="{{ route('fitur.destroy', $fitur->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus fitur ini beserta semua detailnya?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                                <i class="bi bi-trash"></i> Hapus
+                                                            </button>
+                                                        </form>
+
                                                         <button type="submit" class="btn btn-sm btn-success">
                                                             <i class="bi bi-save"></i> Update
                                                         </button>
                                                     </div>
+
                                                 </form>
                                             </div>
                                         </div>
@@ -120,8 +141,9 @@
         </div>
     </div>
 
-    {{-- Script tambah dan hapus detail fitur --}}
+    {{-- Script --}}
     <script>
+        // Tambah dan hapus detail fitur di form tambah fitur
         const container = document.getElementById('detailFiturContainer');
         const addBtn = document.getElementById('addDetailFitur');
 
@@ -138,6 +160,30 @@
         });
 
         container.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-detail')) {
+                e.target.closest('.detail-item').remove();
+            }
+        });
+
+        // Tambah dan hapus detail di daftar fitur (accordion)
+        document.querySelectorAll('.addDetailBtn').forEach(button => {
+            button.addEventListener('click', function() {
+                const fiturId = this.dataset.fiturId;
+                const targetContainer = document.getElementById(`detailContainer-${fiturId}`);
+                const div = document.createElement('div');
+                div.className = 'form-group mb-3 detail-item position-relative';
+                div.innerHTML = `
+                    <input type="text" name="details_baru[]" class="form-control form-control-sm mb-2" placeholder="Detail fitur baru" required>
+                    <button type="button" class="btn btn-sm btn-link text-danger position-absolute end-0 top-0 mt-2 me-2 remove-detail" title="Hapus">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+                targetContainer.appendChild(div);
+            });
+        });
+
+        // Hapus detail (global handler)
+        document.addEventListener('click', function(e) {
             if (e.target.closest('.remove-detail')) {
                 e.target.closest('.detail-item').remove();
             }

@@ -54,4 +54,10 @@ class DashboardFiturController extends Controller
 
         return redirect()->back()->with('success', 'Fitur berhasil diperbarui.');
     }
+
+    public function destroy($id){
+        $fitur = Fitur::findOrFail($id);
+        $fitur->delete();
+        return redirect()->back()->with('success','fitur berhasil dihapus');
+    }
 }
