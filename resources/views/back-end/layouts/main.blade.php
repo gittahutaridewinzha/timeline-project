@@ -173,6 +173,8 @@
         $('#example').DataTable(); // ← ini kemungkinan penyebabnya
     });
   </script> --}}
+
+  @stack('scripts')
 </body>
 
 </html>

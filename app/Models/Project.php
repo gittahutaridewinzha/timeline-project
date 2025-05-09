@@ -32,4 +32,11 @@ class Project extends Model
     {
         return $this->belongsToMany(JobType::class, 'project_job_types', 'project_id', 'job_id');
     }
+
+    public function jobTypeAssignments()
+    {
+        return $this->belongsToMany(JobType::class, 'task_distributions', 'project_id', 'job_types_id')
+            ->withPivot('user_id')
+            ->withTimestamps();
+    }
 }

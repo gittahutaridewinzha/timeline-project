@@ -39,6 +39,12 @@
                                                     class="btn btn-sm btn-warning text-white">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
+
+                                                <a href="{{ route('penugasan.index', $project->id) }}"
+                                                    class="btn btn-sm btn-info text-white">
+                                                    <i class="bi bi-person-check"></i>
+                                                </a>
+
                                                 <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#deleteModal{{ $project->id }}" title="Hapus">
                                                     <i class="bi bi-trash"></i>
@@ -58,7 +64,8 @@
                                                         Apakah Anda yakin ingin menghapus Project ini?
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <form action="{{ route('project.destroy', $project->id) }}" method="POST">
+                                                        <form action="{{ route('project.destroy', $project->id) }}"
+                                                            method="POST">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger">Hapus</button>

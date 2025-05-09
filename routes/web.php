@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardCategoryProjectController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardDetailFiturController;
 use App\Http\Controllers\DashboardFiturController;
@@ -23,7 +24,10 @@ Route::middleware(['auth:admin', CheckMenuAccess::class])->group(function () {
     Route::resource('/fitur', DashboardFiturController::class);
     Route::resource('/detail-fitur', DashboardDetailFiturController::class);
     Route::resource('/pengerjaan', DashboardPengerjaanController::class);
-    Route::resource('/penugasan', DashboardPenugasanController::class);
+    Route::get('/penugasan/project/{project}', [DashboardPenugasanController::class, 'index'])->name('penugasan.index');
+    Route::post('penugasan/{project}', [DashboardPenugasanController::class, 'store'])->name('penugasan.store');
+    // Route::resource('/penugasan', DashboardPenugasanController::class);
+    Route::resource('/category-project', DashboardCategoryProjectController::class);
 });
 
 Route::get('/login', [AuthController::class, 'index'])->name('login');
