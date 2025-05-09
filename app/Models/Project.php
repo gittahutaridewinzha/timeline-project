@@ -11,12 +11,7 @@ class Project extends Model
 
     protected $table = 'project';
 
-    protected $fillable = [
-        'nama_project',
-        'deskripsi',
-        'id_project_manager',
-        'category_id',
-    ];
+    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id'];
 
     public function ProjectManager()
     {
@@ -35,8 +30,11 @@ class Project extends Model
 
     public function jobTypeAssignments()
     {
-        return $this->belongsToMany(JobType::class, 'task_distributions', 'project_id', 'job_types_id')
-            ->withPivot('user_id')
-            ->withTimestamps();
+        return $this->belongsToMany(JobType::class, 'task_distributions', 'project_id', 'job_types_id')->withPivot('user_id')->withTimestamps();
+    }
+
+    public function fiturs()
+    {
+        return $this->hasMany(Fitur::class);
     }
 }

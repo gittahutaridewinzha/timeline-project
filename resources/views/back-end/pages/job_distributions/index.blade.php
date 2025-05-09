@@ -3,6 +3,12 @@
 @section('content')
     <div class="main-panel" style="margin-top: 10px;">
         <div class="content-wrapper">
+            @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
             <div class="col-lg-12 mx-auto grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">

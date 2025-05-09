@@ -40,10 +40,18 @@
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
 
+                                                <a href="{{ route('fitur.index', ['project' => $project->id]) }}"
+                                                    class="btn btn-sm btn-primary text-white">
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </a>
+
+
+
                                                 <a href="{{ route('penugasan.index', $project->id) }}"
                                                     class="btn btn-sm btn-info text-white">
                                                     <i class="bi bi-person-check"></i>
                                                 </a>
+
 
                                                 <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#deleteModal{{ $project->id }}" title="Hapus">
