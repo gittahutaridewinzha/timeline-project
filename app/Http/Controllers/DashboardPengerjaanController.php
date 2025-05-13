@@ -71,7 +71,7 @@ class DashboardPengerjaanController extends Controller
             ]);
         }
 
-        return redirect()->route('pengerjaan.create', ['project_id' => $request->project_id])
+        return redirect()->route('pengerjaan.tambah', ['project_id' => $request->project_id])
         ->with('success', 'Pengerjaan berhasil ditambahkan.');
     }
 

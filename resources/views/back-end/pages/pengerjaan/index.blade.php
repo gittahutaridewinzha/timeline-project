@@ -29,7 +29,7 @@
                                         @endif
                                     </p>
 
-                                    <a href="{{ route('pengerjaan.create', $project->id) }}" class="btn btn-primary btn-sm">
+                                    <a href="{{ route('pengerjaan.tambah', $project->id) }}" class="btn btn-primary btn-sm">
                                         Lihat Detail
                                     </a>
                                 </div>
