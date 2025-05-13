@@ -21,4 +21,5 @@ class JobType extends Model
         return $this->belongsToMany(Project::class, 'task_distributions', 'job_types_id', 'project_id')
             ->withPivot('user_id');
     }
+
 }

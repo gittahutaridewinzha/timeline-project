@@ -43,16 +43,13 @@
                                         <div class="job-type-item" id="job_type_wrapper_{{ $jobType->id }}">
                                             <span class="badge bg-primary d-flex align-items-center me-2 mb-2">
                                                 {{ $jobType->name }}
-                                                <button type="button" class="btn-close btn-close-white ms-2"
-                                                    aria-label="Remove"
+                                                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"
                                                     onclick="removeJobType({{ $jobType->id }})"></button>
                                             </span>
-                                            <input type="hidden" name="job_types[]" value="{{ $jobType->id }}"
-                                                id="job_type_input_{{ $jobType->id }}">
+                                            <input type="hidden" name="job_types[]" value="{{ $jobType->id }}" id="job_type_input_{{ $jobType->id }}">
                                         </div>
                                     @endforeach
                                 </div>
-
                                 <select id="job_type_dropdown" class="form-select">
                                     <option value="">Pilih Pekerjaan</option>
                                     @foreach ($jobTypes as $jobType)
@@ -61,7 +58,6 @@
                                         @endif
                                     @endforeach
                                 </select>
-
                             </div>
 
                             <button type="submit" class="btn btn-primary">Update</button>
@@ -75,70 +71,105 @@
 
     <script src="https://cdn.ckeditor.com/4.20.2/standard/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('deskripsi');
+        const categoryDropdown = document.getElementById('category_id');
+        const jobDropdown = document.getElementById('job_type_dropdown');
+        const selectedJobTypesDiv = document.getElementById('selectedJobTypes');
+        const projectId = {{ $project->id }};
+        let currentJobTypes = [];
 
-        const dropdown = document.getElementById('job_type_dropdown');
-        const selectedContainer = document.getElementById('selectedJobTypes');
-
-        dropdown.addEventListener('change', function() {
-            const selectedId = this.value;
-            const selectedText = this.options[this.selectedIndex].text;
-
-            if (!selectedId || document.getElementById('job_type_input_' + selectedId)) {
-                return;
-            }
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'job-type-item';
-            wrapper.id = 'job_type_wrapper_' + selectedId;
-            wrapper.innerHTML = `
-            <span class="badge bg-primary d-flex align-items-center me-2 mb-2">
-                ${selectedText}
-                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove" onclick="removeJobType(${selectedId})"></button>
-            </span>
-            <input type="hidden" name="job_types[]" value="${selectedId}" id="job_type_input_${selectedId}">`;
-
-            selectedContainer.appendChild(wrapper);
-
-            const option = dropdown.querySelector(`option[value="${selectedId}"]`);
-            if (option) {
-                option.remove();
-            }
-
-            dropdown.value = '';
+        // Saat halaman selesai dimuat, trigger event kategori
+        document.addEventListener('DOMContentLoaded', () => {
+            categoryDropdown.dispatchEvent(new Event('change'));
         });
+
+        categoryDropdown.addEventListener('change', function () {
+            const selectedCategoryId = this.value;
+
+            // Kosongkan dropdown & simpan ulang currentJobTypes
+            jobDropdown.innerHTML = '<option value="">Pilih Pekerjaan</option>';
+            currentJobTypes = [];
+
+            if (selectedCategoryId) {
+                fetch(`/get-job-types-by-category-edit/${selectedCategoryId}/${projectId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // Debug
+                        if (data.jobTypes && data.jobTypes.length > 0) {
+                            currentJobTypes = data.jobTypes;
+
+                            // Tampilkan ulang pekerjaan yang belum dipilih
+                            currentJobTypes.forEach(jobType => {
+                                if (jobType.selected) {
+                                    addJobTypeToSelected(jobType.id, jobType.name);
+                                } else {
+                                    appendJobOption(jobType.id, jobType.name);
+                                }
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.disabled = true;
+                            option.textContent = 'Tidak ada pekerjaan untuk kategori ini';
+                            jobDropdown.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Gagal mengambil data pekerjaan:', error);
+                    });
+            }
+        });
+
+        jobDropdown.addEventListener('change', function () {
+            const selectedJobId = this.value;
+            const selectedJobName = this.options[this.selectedIndex].text;
+
+            if (selectedJobId) {
+                addJobTypeToSelected(selectedJobId, selectedJobName);
+                removeOptionByValue(selectedJobId);
+                this.selectedIndex = 0;
+            }
+        });
+
+        function addJobTypeToSelected(id, name) {
+            if (!document.getElementById('job_type_input_' + id)) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'job-type-item';
+                wrapper.id = 'job_type_wrapper_' + id;
+
+                wrapper.innerHTML = `
+                    <span class="badge bg-primary d-flex align-items-center me-2 mb-2">
+                        ${name}
+                        <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove" onclick="removeJobType(${id})"></button>
+                    </span>
+                    <input type="hidden" name="job_types[]" value="${id}" id="job_type_input_${id}">
+                `;
+
+                selectedJobTypesDiv.appendChild(wrapper);
+            }
+        }
 
         function removeJobType(id) {
             const wrapper = document.getElementById('job_type_wrapper_' + id);
             if (wrapper) {
+                const name = wrapper.querySelector('span').childNodes[0].nodeValue.trim();
+                appendJobOption(id, name);
                 wrapper.remove();
-
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = wrapper.querySelector('span').textContent.trim();
-                dropdown.appendChild(option);
             }
         }
 
-        document.querySelectorAll('[id^="job_type_input_"]').forEach(function(input) {
-            const selectedId = input.value;
-            const selectedText = dropdown.querySelector(`option[value="${selectedId}"]`).text;
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'job-type-item';
-            wrapper.id = 'job_type_wrapper_' + selectedId;
-            wrapper.innerHTML = `
-            <span class="badge bg-primary d-flex align-items-center me-2 mb-2">
-                ${selectedText}
-                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove" onclick="removeJobType(${selectedId})"></button>
-            </span>
-            <input type="hidden" name="job_types[]" value="${selectedId}" id="job_type_input_${selectedId}">`;
-            selectedContainer.appendChild(wrapper);
-
-            const option = dropdown.querySelector(`option[value="${selectedId}"]`);
-            if (option) {
-                option.remove();
+        function appendJobOption(id, name) {
+            // Hindari duplikasi saat menambahkan kembali ke dropdown
+            if (!Array.from(jobDropdown.options).some(opt => opt.value === id.toString())) {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = name;
+                jobDropdown.appendChild(option);
             }
-        });
+        }
+
+        function removeOptionByValue(value) {
+            const option = Array.from(jobDropdown.options).find(opt => opt.value === value);
+            if (option) option.remove();
+        }
     </script>
+
 @endsection

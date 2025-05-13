@@ -46,4 +46,9 @@ class DashboardJobTypeController extends Controller
 
         return redirect()->back()->with('success', 'Berhasil dihapus!');
     }
+    public function getJobTypesByCategory($categoryId)
+    {
+        $jobTypes = JobType::where('category_id', $categoryId)->get();
+        return response()->json(['jobTypes' => $jobTypes]);
+    }
 }

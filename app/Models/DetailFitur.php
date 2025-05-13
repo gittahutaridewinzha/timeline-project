@@ -13,10 +13,12 @@ class DetailFitur extends Model
 
     protected $fillable = ['fitur_id', 'name'];
 
-    public function fitur()
-    {
-        return $this->belongsToMany(Fitur::class);
-    }
+    // App\Models\DetailFitur.php
+public function fitur()
+{
+    return $this->belongsTo(Fitur::class, 'fitur_id');
+}
+
 
     public function detailFiturs()
     {

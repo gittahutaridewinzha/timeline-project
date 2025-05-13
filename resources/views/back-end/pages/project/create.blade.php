@@ -36,9 +36,6 @@
                                 <div id="selectedJobTypes" class="mb-2 d-flex flex-wrap gap-2"></div>
                                 <select id="job_type_dropdown" class="form-select">
                                     <option value="">Pilih Pekerjaan</option>
-                                    @foreach ($jobTypes as $jobType)
-                                        <option value="{{ $jobType->id }}">{{ $jobType->name }}</option>
-                                    @endforeach
                                 </select>
 
                                 <div id="hiddenInputs"></div>
@@ -49,6 +46,7 @@
                             <button type="submit" class="btn btn-primary">Simpan</button>
                             <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>
                         </form>
+
                     </div>
                 </div>
             </div>
@@ -57,59 +55,92 @@
 
     <script src="https://cdn.ckeditor.com/4.20.2/standard/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('deskripsi');
-
         const dropdown = document.getElementById('job_type_dropdown');
-        const selectedJobTypes = document.getElementById('selectedJobTypes');
-        const hiddenInputs = document.getElementById('hiddenInputs');
-        const selectedIds = new Set();
+        const categoryDropdown = document.getElementById('category_id');
+        const selectedJobTypesDiv = document.getElementById('selectedJobTypes');
+        const hiddenInputsDiv = document.getElementById('hiddenInputs');
 
-        function updateDropdownOptions() {
-            const options = dropdown.querySelectorAll('option');
-            options.forEach(option => {
-                if (selectedIds.has(option.value)) {
-                    option.style.display = 'none';
-                } else {
-                    option.style.display = 'block';
-                }
-            });
-        }
+        let selectedJobTypes = [];
 
-        dropdown.addEventListener('change', function() {
+        categoryDropdown.addEventListener('change', function () {
+            const selectedCategoryId = this.value;
+            dropdown.innerHTML = '<option value="">Pilih Pekerjaan</option>';
+            selectedJobTypes = [];
+            selectedJobTypesDiv.innerHTML = '';
+            hiddenInputsDiv.innerHTML = '';
+
+            if (selectedCategoryId) {
+                fetch(`/get-job-types-by-category/${selectedCategoryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.jobTypes && data.jobTypes.length > 0) {
+                            data.jobTypes.forEach(jobType => {
+                                const option = document.createElement('option');
+                                option.value = jobType.id;
+                                option.textContent = jobType.name;
+                                dropdown.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.disabled = true;
+                            option.textContent = 'Tidak ada pekerjaan untuk kategori ini';
+                            dropdown.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching job types:', error);
+                    });
+            }
+        });
+
+        dropdown.addEventListener('change', function () {
             const selectedId = this.value;
             const selectedText = this.options[this.selectedIndex].text;
 
-            if (selectedId && !selectedIds.has(selectedId)) {
-                selectedIds.add(selectedId);
+            // Cegah duplikasi
+            if (selectedId && !selectedJobTypes.includes(selectedId)) {
+                selectedJobTypes.push(selectedId);
 
+                // Tambahkan tag visual
                 const badge = document.createElement('span');
-                badge.className = 'badge bg-primary d-inline-flex align-items-center';
-                badge.innerHTML = `
-                    ${selectedText}
-                    <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Close"></button>
-                `;
+                badge.className = 'badge bg-primary text-white p-2 rounded-pill';
+                badge.textContent = selectedText;
+                badge.style.marginRight = '5px';
 
-                badge.querySelector('button').addEventListener('click', function() {
-                    selectedJobTypes.removeChild(badge);
-                    hiddenInputs.querySelector(`input[value="${selectedId}"]`).remove();
-                    selectedIds.delete(selectedId);
-                    updateDropdownOptions();
+                // Tombol hapus
+                const removeBtn = document.createElement('span');
+                removeBtn.textContent = ' ×';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.style.marginLeft = '5px';
+                removeBtn.addEventListener('click', () => {
+                    selectedJobTypes = selectedJobTypes.filter(id => id !== selectedId);
+                    badge.remove();
+                    document.getElementById(`job-type-${selectedId}`).remove();
+
+                    // Tambahkan kembali ke dropdown
+                    const option = document.createElement('option');
+                    option.value = selectedId;
+                    option.textContent = selectedText;
+                    dropdown.appendChild(option);
                 });
 
-                selectedJobTypes.appendChild(badge);
+                badge.appendChild(removeBtn);
+                selectedJobTypesDiv.appendChild(badge);
 
+                // Tambahkan input tersembunyi
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
-                hiddenInput.name = 'job_types[]';
+                hiddenInput.name = 'job_type_ids[]';
                 hiddenInput.value = selectedId;
-                hiddenInputs.appendChild(hiddenInput);
+                hiddenInput.id = `job-type-${selectedId}`;
+                hiddenInputsDiv.appendChild(hiddenInput);
 
-                updateDropdownOptions();
+                // Hapus dari dropdown
+                this.remove(this.selectedIndex);
             }
 
-            this.value = '';
+            // Reset dropdown
+            this.selectedIndex = 0;
         });
-
-        updateDropdownOptions();
     </script>
 @endsection

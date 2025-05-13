@@ -23,9 +23,17 @@ class Project extends Model
         return $this->belongsTo(CategoryProject::class);
     }
 
-    public function jobTypes()
+       // Di CategoryProject.php
+       public function jobTypes()
+       {
+           return $this->belongsToMany(JobType::class, 'project_job_types', 'project_id', 'job_id')
+                       ->withPivot('category_id')
+                       ->withTimestamps();
+       }
+
+    public function taskDistributions()
     {
-        return $this->belongsToMany(JobType::class, 'project_job_types', 'project_id', 'job_id');
+        return $this->hasMany(TaskDistribution::class);
     }
 
     public function jobTypeAssignments()
@@ -37,4 +45,6 @@ class Project extends Model
     {
         return $this->hasMany(Fitur::class);
     }
+
+
 }
