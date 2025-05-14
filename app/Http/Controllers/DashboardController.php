@@ -12,25 +12,23 @@ class DashboardController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $month = $request->input('month') ?? Carbon::now()->month;
+    {
+        $month = $request->input('month') ?? Carbon::now()->month;
 
-    // Ambil proyek berdasarkan bulan, urutkan berdasarkan deadline terdekat
-    $projects = Project::whereMonth('deadline', $month)
-        ->orderBy('deadline', 'asc')
-        ->get();
+        // Ambil proyek berdasarkan bulan, urutkan berdasarkan deadline terdekat
+        $projects = Project::whereMonth('deadline', $month)
+            ->orderBy('deadline', 'asc')
+            ->get();
 
-    $totalProjects = $projects->count();
+        $totalProjects = $projects->count();
 
-    // Format tanggal deadline (opsional, kalau kamu pakai formatted_deadline di view)
-    foreach ($projects as $project) {
-        $project->formatted_deadline = Carbon::parse($project->deadline)->format('d M Y');
+        // Format tanggal deadline (opsional, kalau kamu pakai formatted_deadline di view)
+        foreach ($projects as $project) {
+            $project->formatted_deadline = Carbon::parse($project->deadline)->format('d M Y');
+        }
+
+        return view('back-end.pages.dashboard', compact('projects', 'totalProjects'));
     }
-
-    return view('back-end.pages.dashboard', compact('projects', 'totalProjects'));
-}
-
-
 
     /**
      * Show the form for creating a new resource.
