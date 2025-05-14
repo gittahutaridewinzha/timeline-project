@@ -41,6 +41,55 @@
                                 <div id="hiddenInputs"></div>
                             </div>
 
+
+                            @if (Auth::user()->role && Auth::user()->role->name == 'Marketing')
+                                <div class="form-group mb-3">
+                                    <label for="value_project_display">Value Project</label>
+                                    <input type="text" id="value_project_display" class="form-control"
+                                        placeholder="Rp 0,00" autocomplete="off" inputmode="numeric">
+                                    <input type="hidden" name="value_project" id="value_project">
+                                </div>
+                            @endif
+
+                            <script>
+                                const displayInput = document.getElementById('value_project_display');
+                                const hiddenInput = document.getElementById('value_project');
+
+                                function formatRupiah(value) {
+                                    const cleanValue = value.replace(/[^0-9]/g, '');
+                                    const number = parseInt(cleanValue, 10);
+                                    if (isNaN(number)) return '';
+
+                                    return new Intl.NumberFormat('id-ID', {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0
+                                    }).format(number);
+                                }
+
+                                displayInput.addEventListener('input', function(e) {
+                                    const cursorPosition = e.target.selectionStart;
+                                    const oldLength = e.target.value.length;
+
+                                    // Format ulang ke Rupiah
+                                    const formatted = formatRupiah(e.target.value);
+                                    e.target.value = formatted;
+
+                                    // Update hidden input (tanpa format)
+                                    const numericValue = formatted.replace(/[^0-9]/g, '');
+                                    hiddenInput.value = numericValue;
+
+                                    // Coba pertahankan posisi kursor
+                                    const newLength = formatted.length;
+                                    const adjustment = newLength - oldLength;
+                                    e.target.setSelectionRange(cursorPosition + adjustment, cursorPosition + adjustment);
+                                });
+                            </script>
+
+
+
+
                             <input type="hidden" name="id_project_manager" value="{{ Auth::user()->id }}">
 
                             <button type="submit" class="btn btn-primary">Simpan</button>
@@ -62,7 +111,7 @@
 
         let selectedJobTypes = [];
 
-        categoryDropdown.addEventListener('change', function () {
+        categoryDropdown.addEventListener('change', function() {
             const selectedCategoryId = this.value;
             dropdown.innerHTML = '<option value="">Pilih Pekerjaan</option>';
             selectedJobTypes = [];
@@ -93,7 +142,7 @@
             }
         });
 
-        dropdown.addEventListener('change', function () {
+        dropdown.addEventListener('change', function() {
             const selectedId = this.value;
             const selectedText = this.options[this.selectedIndex].text;
 
