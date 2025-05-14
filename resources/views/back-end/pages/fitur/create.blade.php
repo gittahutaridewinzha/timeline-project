@@ -126,12 +126,12 @@
 
                                                     <div class="d-flex justify-content-end gap-2">
                                                         <button type="submit" class="btn btn-sm btn-success">
-                                                            <i class="bi bi-save"></i> Update
+                                                            <i class="bi bi-save"></i> Update Detail Fitur
                                                         </button>
                                                         <button type="button" class="btn btn-sm btn-danger"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#confirmDeleteModal{{ $fitur->id }}">
-                                                            <i class="bi bi-trash"></i> Hapus
+                                                            <i class="bi bi-trash"></i> Hapus Fitur
                                                         </button>
                                                     </div>
                                                 </form>

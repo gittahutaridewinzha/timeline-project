@@ -359,9 +359,13 @@
 
 
 
+
+
+
+
                {{-- Otoritas --}}
                @if (Auth::user()->hasAccessToMenu('register') ||
-                       Auth::user()->hasAccessToMenu('data-admin') ||
+                       Auth::user()->hasAccessToMenu('user-data') ||
                        Auth::user()->hasAccessToMenu('roles'))
                    <li class="nav-item">
                        <a class="nav-link" data-bs-toggle="collapse" href="#collapseOtoritas" aria-expanded="false"
@@ -377,9 +381,9 @@
                                        <a class="nav-link" href="{{ url('/register') }}">Register Admin</a>
                                    </li>
                                @endif
-                               @if (Auth::user()->hasAccessToMenu('data-admin'))
+                               @if (Auth::user()->hasAccessToMenu('data-user'))
                                    <li class="nav-item">
-                                       <a class="nav-link" href="{{ url('/admins') }}">Data Admin</a>
+                                       <a class="nav-link" href="{{ url('/data-user') }}">Data User</a>
                                    </li>
                                @endif
                                @if (Auth::user()->hasAccessToMenu('roles'))
