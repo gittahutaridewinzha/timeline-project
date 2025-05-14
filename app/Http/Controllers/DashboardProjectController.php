@@ -79,8 +79,11 @@ class DashboardProjectController extends Controller
             'category_id' => 'required|exists:category_projects,id',
             'job_type_ids' => 'array',
             'job_type_ids.*' => 'exists:job_types,id',
-            'value_project' => 'nullable|numeric', // validasi opsional
+            'value_project' => 'nullable|numeric',
+            'deadline' => 'date',
+            'status' => 'required|in:on progress,completed',
         ]);
+
 
         // Proses value_project untuk menghapus simbol "Rp" dan tanda koma
         if ($request->filled('value_project')) {
@@ -98,6 +101,8 @@ class DashboardProjectController extends Controller
             'deskripsi' => $request->deskripsi,
             'category_id' => $request->category_id,
             'id_project_manager' => Auth::id(),
+            'deadline' => $request->deadline,
+            'status' => $request->status,
         ]);
 
         Log::debug('Project saved:', ['project' => $project->toArray()]);
@@ -223,8 +228,9 @@ class DashboardProjectController extends Controller
     // Menampilkan form untuk edit project
     public function edit($id)
     {
-        $project = Project::with('jobTypes')->find($id); // Menggunakan $id yang diterima dari parameter
-        $categoryProject = CategoryProject::all(); // Ambil kategori project
+        $project = Project::with('jobTypes')->find($id);
+
+        $categoryProject = CategoryProject::all();
         $jobTypes = CategoryProjectsDetail::with('jobType')->get();
 
         return view('back-end.pages.project.edit', compact('project', 'categoryProject', 'jobTypes'));
@@ -237,26 +243,32 @@ class DashboardProjectController extends Controller
             abort(403);
         }
 
+        if ($project->status === 'completed') {
+            return redirect()->route('project.index')->with('error', 'Project yang telah selesai tidak bisa diperbarui.');
+        }
+
         $request->validate([
             'nama_project' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'category_id' => 'required|exists:category_projects,id',
             'job_types' => 'nullable|array',
             'job_types.*' => 'exists:job_types,id',
+            'deadline' => 'nullable|date',
+            'status' => 'required|in:on progress,completed',
         ]);
 
-        // Update informasi proyek
         $project->update([
             'nama_project' => $request->nama_project,
             'deskripsi' => $request->deskripsi,
             'category_id' => $request->category_id,
+            'deadline' => $request->deadline,
+            'status' => $request->status,
         ]);
 
-        // Menyinkronkan job types ke proyek di tabel project_job_types
         $project->jobTypes()->sync(
             collect($request->job_types ?? [])->mapWithKeys(function ($jobTypeId) use ($request) {
                 return [$jobTypeId => ['category_id' => $request->category_id]];
-            }),
+            })
         );
 
         return redirect()->route('project.index')->with('success', 'Project berhasil diperbarui.');

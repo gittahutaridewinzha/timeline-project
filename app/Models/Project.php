@@ -11,7 +11,7 @@ class Project extends Model
 
     protected $table = 'project';
 
-    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id'];
+    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id','deadline','status'];
 
     public function ProjectManager()
     {

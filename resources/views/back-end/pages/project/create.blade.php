@@ -21,6 +21,13 @@
                                 <textarea name="deskripsi" id="deskripsi" rows="4" class="form-control" required></textarea>
                             </div>
 
+                            <div class="form-group mb-3">
+                                <label for="deadline">Deadline</label>
+                                <input type="date" name="deadline" id="deadline" class="form-control">
+                            </div>
+
+                            <input type="hidden" name="status" value="on progress">
+
                             <div class="mb-3">
                                 <label for="category_id" class="form-label">Pilih Kategori Project</label>
                                 <select class="form-select" id="category_id" name="category_id" required>
