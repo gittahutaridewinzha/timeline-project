@@ -39,24 +39,27 @@
 
                             <div class="modal-header">
                                 <h5 class="modal-title" id="tambahPekerjaanModalLabel">Tambah Category</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Nama Category</label>
-                                <input type="text" class="form-control" id="name" name="name" required placeholder="Masukkan Nama Category">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="job_type_dropdown" class="form-label">Pilih Pekerjaan</label>
-                                <select id="job_type_dropdown" class="form-select">
-                                    <option value="">Pilih Pekerjaan</option>
-                                    @foreach ($jobTypes as $jobType)
-                                        <option value="{{ $jobType->id }}">{{ $jobType->name }}</option>
-                                    @endforeach
-                                </select>
-                                <div id="hiddenInputs"></div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nama Category</label>
+                                    <input type="text" class="form-control" id="name" name="name" required placeholder="Masukkan Nama Category">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="job_type_dropdown" class="form-label">Pilih Pekerjaan</label>
+                                    <select id="job_type_dropdown" name="job_type_id" class="form-select w-100"> {{-- GANTI class ke form-control --}}
+                                        <option value="">Pilih Pekerjaan</option>
+                                        @foreach ($jobTypes as $jobType)
+                                            <option value="{{ $jobType->id }}">{{ $jobType->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="hiddenInputs"></div>
+                                </div>
                             </div>
+
 
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-primary">Simpan</button>
@@ -97,53 +100,45 @@
                                         <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1"
                                             aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
                                             <div class="modal-dialog">
-                                                <form action="{{ route('category-project.update', $item->id) }}"
-                                                    method="POST" class="modal-content">
+                                                <form action="{{ route('category-project.update', $item->id) }}" method="POST" class="modal-content">
                                                     @csrf
                                                     @method('PUT')
 
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="editModalLabel{{ $item->id }}">Edit
-                                                            Category
-                                                        </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Tutup"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label for="name{{ $item->id }}" class="form-label">Nama
-                                                                Category</label>
-                                                            <input type="text" class="form-control"
-                                                                id="name{{ $item->id }}" name="name"
-                                                                value="{{ $item->name }}" required>
-                                                        </div>
+                                                        <h5 class="modal-title" id="editModalLabel{{ $item->id }}">Edit Category</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                                                     </div>
 
-                                                    <div class="mb-3">
-                                                        <label for="job_type_dropdown_edit_{{ $item->id }}" class="form-label">Pilih Pekerjaan</label>
-                                                        <select id="job_type_dropdown_edit_{{ $item->id }}" class="form-select job-type-dropdown">
-                                                            <option value="">Pilih Pekerjaan</option>
-                                                            @foreach ($jobTypes as $jobType)
-                                                                <option value="{{ $jobType->id }}">{{ $jobType->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <div id="selectedJobTypes_edit_{{ $item->id }}" class="mt-2 d-flex flex-wrap">
-                                                            @foreach ($item->jobTypes as $jt)
-                                                                <span class="badge bg-primary me-2 d-inline-flex align-items-center mb-2">
-                                                                    {{ $jt->name }}
-                                                                    <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Close" onclick="removeSelectedJobType('{{ $item->id }}', '{{ $jt->id }}')"></button>
-                                                                    <input type="hidden" name="job_types[]" value="{{ $jt->id }}">
-                                                                </span>
-                                                            @endforeach
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="name{{ $item->id }}" class="form-label">Nama Category</label>
+                                                            <input type="text" class="form-control" id="name{{ $item->id }}" name="name" value="{{ $item->name }}" required>
                                                         </div>
-                                                        <div id="hiddenInputs_edit_{{ $item->id }}"></div>
+
+                                                        <div class="mb-3">
+                                                            <label for="job_type_dropdown_edit_{{ $item->id }}" class="form-label">Pilih Pekerjaan</label>
+                                                            <select id="job_type_dropdown_edit_{{ $item->id }}" class="form-select job-type-dropdown">
+                                                                <option value="">Pilih Pekerjaan</option>
+                                                                @foreach ($jobTypes as $jobType)
+                                                                    <option value="{{ $jobType->id }}">{{ $jobType->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div id="selectedJobTypes_edit_{{ $item->id }}" class="mt-2 d-flex flex-wrap">
+                                                                @foreach ($item->jobTypes as $jt)
+                                                                    <span class="badge bg-primary me-2 d-inline-flex align-items-center mb-2">
+                                                                        {{ $jt->name }}
+                                                                        <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Close" onclick="removeSelectedJobType('{{ $item->id }}', '{{ $jt->id }}')"></button>
+                                                                        <input type="hidden" name="job_types[]" value="{{ $jt->id }}">
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                            <div id="hiddenInputs_edit_{{ $item->id }}"></div>
+                                                        </div>
                                                     </div>
 
                                                     <div class="modal-footer">
-                                                        <button type="submit" class="btn btn-primary">Simpan
-                                                            Perubahan</button>
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                     </div>
                                                 </form>
                                             </div>
