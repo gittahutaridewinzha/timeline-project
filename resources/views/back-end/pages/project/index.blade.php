@@ -1,7 +1,7 @@
 @extends('back-end.layouts.main')
 
 @section('content')
-    <div class="main-panel" style="margin-top: 10px;">
+    <div class="main-panel" style="margin-top: 40px;">
         <div class="content-wrapper">
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -26,6 +26,7 @@
                                     <tr>
                                         <th>Nama Project</th>
                                         <th>Deskripsi</th>
+                                        <th>Progress</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -34,6 +35,20 @@
                                         <tr>
                                             <td>{{ $project->nama_project }}</td>
                                             <td>{!! $project->deskripsi !!}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px; position: relative;">
+                                                    <div class="progress-bar {{ $project->jumlah_pengerjaan == 0 ? 'bg-secondary' : 'bg-primary' }}"
+                                                        role="progressbar"
+                                                        style="width: {{ $project->jumlah_pengerjaan ?? 0 }}%;"
+                                                        aria-valuenow="{{ $project->jumlah_pengerjaan ?? 0 }}"
+                                                        aria-valuemin="0" aria-valuemax="100">
+                                                        <span class="progress-text"
+                                                            style="position: absolute; width: 100%; text-align: center; color: black; font-weight: bold; top: 50%; transform: translateY(-50%);">
+                                                            {{ number_format($project->persentase_pengerjaan , 2) }}%
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <a href="{{ route('project.edit', $project->id) }}"
                                                     class="btn btn-sm btn-warning text-white">
@@ -45,13 +60,15 @@
                                                     <i class="bi bi-plus-circle"></i>
                                                 </a>
 
-
-
                                                 <a href="{{ route('penugasan.index', $project->id) }}"
                                                     class="btn btn-sm btn-info text-white">
                                                     <i class="bi bi-person-check"></i>
                                                 </a>
 
+                                                <a href="{{ route('project.show', $project->id) }}"
+                                                    class="btn btn-sm btn-success text-white">
+                                                    <i class="bi bi-hourglass-split"></i>
+                                                </a>
 
                                                 <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#deleteModal{{ $project->id }}" title="Hapus">
