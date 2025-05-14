@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DashboardPengerjaanController extends Controller
 {
@@ -28,7 +29,6 @@ class DashboardPengerjaanController extends Controller
 
         return view('back-end.pages.pengerjaan.index', compact('projects','pengerjaans'));
     }
-
 
     public function create($project_id = null)
     {
@@ -64,15 +64,31 @@ class DashboardPengerjaanController extends Controller
         ]);
 
         foreach ($request->detail_fiturs_id as $index => $detailFiturId) {
-            Pengerjaan::create([
-                'user_id' => Auth::id(),
-                'detail_fiturs_id' => $detailFiturId,
-                'pengerjaan' => $request->pengerjaan[$index],
-            ]);
+            $existing = Pengerjaan::where('user_id', Auth::id())
+                                  ->where('detail_fiturs_id', $detailFiturId)
+                                  ->first();
+
+            if ($existing) {
+                Log::info("Updating pengerjaan ID {$existing->id} to " . $request->pengerjaan[$index]);
+            } else {
+                Log::info("Creating pengerjaan baru untuk detail_fitur_id {$detailFiturId}");
+            }
+
+            Pengerjaan::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'detail_fiturs_id' => $detailFiturId,
+                ],
+                [
+                    'pengerjaan' => $request->pengerjaan[$index],
+                ]
+            );
         }
 
         return redirect()->route('pengerjaan.tambah', ['project_id' => $request->project_id])
+        return redirect()->route('pengerjaan.create', ['project_id' => $request->project_id])
         ->with('success', 'Pengerjaan berhasil ditambahkan.');
     }
 
+}
 }
