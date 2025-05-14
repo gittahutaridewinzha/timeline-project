@@ -356,13 +356,6 @@
                    </li>
                @endif
 
-
-
-
-
-
-
-
                {{-- Otoritas --}}
                @if (Auth::user()->hasAccessToMenu('register') ||
                        Auth::user()->hasAccessToMenu('user-data') ||
