@@ -37,10 +37,10 @@
                                             <td>{!! $project->deskripsi !!}</td>
                                             <td>
                                                 <div class="progress" style="height: 20px; position: relative;">
-                                                    <div class="progress-bar {{ $project->jumlah_pengerjaan == 0 ? 'bg-secondary' : 'bg-primary' }}"
+                                                    <div class="progress-bar {{ $project->persentase_pengerjaan == 0 ? 'bg-secondary' : 'bg-primary' }}"
                                                         role="progressbar"
-                                                        style="width: {{ $project->jumlah_pengerjaan ?? 0 }}%;"
-                                                        aria-valuenow="{{ $project->jumlah_pengerjaan ?? 0 }}"
+                                                        style="width: {{ $project->persentase_pengerjaan ?? 0 }}%;"
+                                                        aria-valuenow="{{ $project->persentase_pengerjaan ?? 0 }}"
                                                         aria-valuemin="0" aria-valuemax="100">
                                                         <span class="progress-text"
                                                             style="position: absolute; width: 100%; text-align: center; color: black; font-weight: bold; top: 50%; transform: translateY(-50%);">
