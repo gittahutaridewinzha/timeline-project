@@ -8,7 +8,7 @@
                     <div class="col-md-12 grid-margin">
                         <div class="row">
                             <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                                <h3 class="font-weight-bold">Welcome John</h3>
+                                <h3 class="font-weight-bold">Welcome {{ Auth::user()->name }}</h3>
                                 <h6 class="font-weight-normal mb-0">All systems are running smoothly! You have
                                     <span class="text-primary">3 unread alerts!</span>
                                 </h6>
@@ -48,18 +48,18 @@
                             <div class="col-md-3 mb-4 stretch-card transparent">
                                 <div class="card card-dark-blue">
                                     <div class="card-body">
-                                        <p class="mb-4">Total Bookings</p>
-                                        <p class="fs-30 mb-2">61344</p>
-                                        <p>22.00% (30 days)</p>
+                                        <p class="mb-4">Total Completed Projects</p>
+                                        <p class="fs-30 mb-2">{{ $totalCompletedProjects }}</p>
+                                        <p>{{ \Carbon\Carbon::now()->format('F Y') }}</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-3 mb-4 stretch-card transparent">
                                 <div class="card card-light-blue">
                                     <div class="card-body">
-                                        <p class="mb-4">Number of Meetings</p>
-                                        <p class="fs-30 mb-2">34040</p>
-                                        <p>2.00% (30 days)</p>
+                                        <p class="mb-4">Total Employees</p>
+                                        <p class="fs-30 mb-2">{{ $totalEmployees }}</p>
+                                        <p>Total Employee in WAN Teknologi</p>
                                     </div>
                                 </div>
                             </div>
@@ -82,11 +82,10 @@
                                     <p class="card-title">Sales Report</p>
                                     <a href="#" class="text-info">View all</a>
                                 </div>
-                                <p class="font-weight-500">The total number of sessions within the date range. It
-                                    is the period time a user is actively engaged with your website, page or app,
-                                    etc</p>
+                                <p class="font-weight-500">The total number of sessions within the date range.</p>
                                 <div id="sales-chart-legend" class="chartjs-legend mt-4 mb-2"></div>
-                                <canvas id="sales-chart"></canvas>
+                                <canvas id="project-chart"></canvas> <!-- ID baru -->
+                                <div id="no-data-message" style="display:none; color: red;">Data tidak tersedia untuk bulan ini.</div>
                             </div>
                         </div>
                     </div>
@@ -404,4 +403,70 @@
         </div>
         <!-- main-panel ends -->
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let salesChartInstance = null;
+
+    function isDataEmpty(data) {
+        return data.every(v => v === 0);
+    }
+
+    function renderSalesChart(data) {
+        const canvas = document.getElementById('project-chart'); // ID baru
+        const ctx = canvas.getContext('2d');
+
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
+            salesChartInstance = null;
+        }
+
+        if (isDataEmpty(data)) {
+            canvas.style.display = 'none';
+            document.getElementById('no-data-message').style.display = 'block';
+            return;
+        } else {
+            canvas.style.display = 'block';
+            document.getElementById('no-data-message').style.display = 'none';
+        }
+
+        salesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Total Projects',
+                    data: @json($allMonths),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `Total: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Jumlah Proyek' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Bulan' }
+                    }
+                }
+            }
+        });
+    }
+
+    renderSalesChart(@json($allMonths));
+</script>
 @endsection
