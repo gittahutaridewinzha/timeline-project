@@ -337,6 +337,14 @@
                    </li>
                @endif
 
+               @if (Auth::user()->hasAccessToMenu('overview-project'))
+                   <li class="nav-item">
+                       <a class="nav-link" href="{{ url('/overview-project') }}">
+                           <i class="bi bi-clipboard-check menu-icon"></i>
+                           <span class="menu-title">Overview Project</span>
+                       </a>
+                   </li>
+               @endif
 
                @if (Auth::user()->hasAccessToMenu('project'))
                    <li class="nav-item">
