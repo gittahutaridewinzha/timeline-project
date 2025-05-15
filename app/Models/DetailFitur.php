@@ -18,7 +18,6 @@ class DetailFitur extends Model
         return $this->belongsTo(Fitur::class, 'fitur_id');
     }
 
-
     public function detailFiturs()
     {
         return $this->hasMany(DetailFitur::class);
@@ -27,5 +26,10 @@ class DetailFitur extends Model
     public function pengerjaans()
     {
         return $this->hasMany(Pengerjaan::class, 'detail_fiturs_id');
+    }
+
+    public function revisiProjects()
+    {
+        return $this->hasMany(RevisiProject::class, 'detailfitur_id');
     }
 }

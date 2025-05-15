@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\DetailFitur;
 use App\Models\Fitur;
 use App\Models\Project;
+use App\Models\ProjectJobTypes;
+use App\Models\RevisiProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -13,7 +15,9 @@ class DashboardFiturController extends Controller
     public function index($project)
     {
         $project = Project::with('fiturs.detailFiturs')->findOrFail($project);
-        return view('back-end.pages.fitur.create', compact('project'));
+        $jobTypes = ProjectJobTypes::with('jobtype')->where('project_id', $project->id)->get();
+
+        return view('back-end.pages.fitur.create', compact('project', 'jobTypes'));
     }
 
     public function store(Request $request)
@@ -84,6 +88,33 @@ class DashboardFiturController extends Controller
         }
 
         return redirect()->back()->with('success', 'Fitur berhasil diperbarui.');
+    }
+
+    public function revisiproject(Request $request)
+    {
+        Log::info('>>> MASUK KE revisiproject');
+
+        $request->validate([
+            'detailfitur_id' => 'required|exists:detail_fiturs,id',
+            'project_job_type_id' => 'required|exists:project_job_types,id',
+            'note' => 'required|string|max:1000',
+        ]);
+
+        Log::info('Revisi Project Data:', [
+            'detailfitur_id' => $request->detailfitur_id,
+            'project_job_type_id' => $request->project_job_type_id,
+            'note' => $request->note,
+        ]);
+
+        $revisi = RevisiProject::create([
+            'detailfitur_id' => $request->detailfitur_id,
+            'project_job_type_id' => $request->project_job_type_id,
+            'note' => $request->note,
+        ]);
+
+        Log::info('RevisiProject berhasil disimpan:', $revisi->toArray());
+
+        return back()->with('success', 'Catatan revisi berhasil disimpan.');
     }
 
     public function destroy($id)

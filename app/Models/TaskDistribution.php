@@ -34,4 +34,9 @@ class TaskDistribution extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function projectJobType()
+    {
+        return $this->belongsTo(ProjectJobTypes::class, 'project_job_type_id');
+    }
+
 }

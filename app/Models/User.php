@@ -16,22 +16,14 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'role_id',
-        'password',
-    ];
+    protected $fillable = ['name', 'email', 'role_id', 'password'];
 
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     /**
      * Get the attributes that should be cast.
@@ -51,6 +43,12 @@ class User extends Authenticatable
         return $this->belongsTo(Roles::class);
     }
 
+    // User.php
+    public function taskDistributions()
+    {
+        return $this->hasMany(TaskDistribution::class, 'user_id');
+    }
+
     public function hasAccessToMenu($route)
     {
         // Ambil semua nama route yang diizinkan dari database
@@ -66,5 +64,3 @@ class User extends Authenticatable
         return false;
     }
 }
-
-

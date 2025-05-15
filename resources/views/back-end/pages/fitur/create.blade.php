@@ -74,49 +74,81 @@
                                         <div id="collapse{{ $fitur->id }}" class="accordion-collapse collapse"
                                             data-bs-parent="#fiturAccordion">
                                             <div class="accordion-body">
-                                                {{-- Form Update --}}
+
+                                                {{-- Form Update Fitur --}}
                                                 <form action="{{ route('fitur.update', $fitur->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
 
                                                     <div class="mb-3">
                                                         <label class="form-label">Nama Fitur</label>
-                                                        <input type="text" name="name" value="{{ $fitur->name }}" class="form-control">
+                                                        <input type="text" name="name" value="{{ $fitur->name }}"
+                                                            class="form-control">
                                                     </div>
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Detail Fitur</label>
-                                                        <div id="detailContainer-{{ $fitur->id }}">
-                                                            @foreach ($fitur->detailFiturs as $detail)
-                                                                <div class="form-group mb-2 detail-item">
-                                                                    <div class="d-flex align-items-center">
-                                                                        <input type="text"
-                                                                            name="details[{{ $detail->id }}]"
-                                                                            value="{{ $detail->name }}"
-                                                                            class="form-control form-control-sm"
-                                                                            placeholder="Detail fitur">
+                                                    <div class="mb-3" id="detailContainer-{{ $fitur->id }}">
+                                                        @foreach ($fitur->detailFiturs as $detail)
+                                                            @php
+                                                                $revisiList = $detail
+                                                                    ->revisiProjects()
+                                                                    ->latest()
+                                                                    ->get();
+                                                            @endphp
 
-                                                                        <!-- Checkbox dan ikon di kanan -->
-                                                                        <div class="ms-2 d-flex align-items-center">
-                                                                            <input type="checkbox" name="deleted_details[]"
-                                                                                value="{{ $detail->id }}"
-                                                                                class="form-check-input me-1">
-                                                                            <label class="form-check-label mt-2">
-                                                                                <i class="bi bi-trash"></i>
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
+                                                            <div
+                                                                class="form-group mb-3 detail-item d-flex align-items-center">
+                                                                <input type="text" name="details[{{ $detail->id }}]"
+                                                                    value="{{ $detail->name }}"
+                                                                    class="form-control form-control-sm {{ $revisiList->isNotEmpty() ? 'bg-warning-subtle border-warning' : '' }}"
+                                                                    placeholder="Detail fitur">
+
+                                                                <div class="ms-2 d-flex align-items-center">
+                                                                    <input type="checkbox" name="deleted_details[]"
+                                                                        value="{{ $detail->id }}"
+                                                                        class="form-check-input me-1">
+                                                                    <label class="form-check-label mt-2"><i
+                                                                            class="bi bi-trash"></i></label>
                                                                 </div>
-                                                            @endforeach
-                                                        </div>
 
-                                                        @if (!isset($fitur->new_details))
-                                                            <div class="form-group mb-2">
-                                                                <input type="text" name="new_details[]"
-                                                                    class="form-control form-control-sm"
-                                                                    placeholder="Detail fitur baru">
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-outline-warning ms-2"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#revisiModal{{ $detail->id }}">
+                                                                    <i class="bi bi-chat-left-text"></i>
+                                                                </button>
                                                             </div>
-                                                        @endif
+
+                                                            @if ($revisiList->isNotEmpty())
+                                                                <div class="ms-4 mb-3">
+                                                                    <h6 class="text-muted mb-1">Catatan Revisi:</h6>
+                                                                    @foreach ($revisiList as $rev)
+                                                                        <div
+                                                                            class="alert alert-warning py-1 px-2 mb-1 small">
+                                                                            <div class="d-flex justify-content-between">
+                                                                                <div><i
+                                                                                        class="bi bi-chat-left-text-fill me-1"></i>
+                                                                                    {{ $rev->note }}</div>
+                                                                                <small
+                                                                                    class="text-muted ms-2">{{ $rev->created_at->format('d M Y') }}</small>
+                                                                            </div>
+                                                                            @if ($rev->projectJobType && $rev->projectJobType->jobtype)
+                                                                                <div class="text-muted small mt-1">
+                                                                                    <i class="bi bi-tools me-1"></i>
+                                                                                    Job Type:
+                                                                                    {{ $rev->projectJobType->jobtype->name }}
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+
+                                                    <div class="form-group mb-2">
+                                                        <input type="text" name="new_details[]"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Detail fitur baru">
                                                     </div>
 
                                                     <div class="form-group mb-3">
@@ -136,46 +168,7 @@
                                                     </div>
                                                 </form>
 
-
-
-
-                                                <!-- Modal Konfirmasi -->
-                                                <div class="modal fade" id="confirmDeleteModal{{ $fitur->id }}"
-                                                    tabindex="-1"
-                                                    aria-labelledby="confirmDeleteModalLabel{{ $fitur->id }}"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered">
-                                                        <div class="modal-content">
-                                                            <form action="{{ route('fitur.destroy', $fitur->id) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('DELETE')
-
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title">Konfirmasi Hapus Fitur</h5>
-                                                                    <button type="button" class="btn-close"
-                                                                        data-bs-dismiss="modal"
-                                                                        aria-label="Close"></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    Yakin ingin menghapus fitur
-                                                                    <strong>{{ $fitur->name }}</strong> beserta semua
-                                                                    detailnya?
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button"
-                                                                        class="btn btn-secondary btn-sm"
-                                                                        data-bs-dismiss="modal">Batal</button>
-                                                                    <button type="submit"
-                                                                        class="btn btn-danger btn-sm">Ya, Hapus</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                                <!-- Modal Konfirmasi Hapus -->
+                                                {{-- Modal Konfirmasi Hapus Fitur --}}
                                                 <div class="modal fade" id="confirmDeleteModal{{ $fitur->id }}"
                                                     tabindex="-1"
                                                     aria-labelledby="confirmDeleteModalLabel{{ $fitur->id }}"
@@ -212,11 +205,77 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </div>
-
-
                                         </div>
                                     </div>
+
+                                    {{-- Modal Revisi (diletakkan di luar form utama) --}}
+                                    @foreach ($fitur->detailFiturs as $detail)
+                                        <div class="modal fade" id="revisiModal{{ $detail->id }}" tabindex="-1"
+                                            aria-labelledby="revisiModalLabel{{ $detail->id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <form action="{{ route('fitur.revisi') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="detailfitur_id"
+                                                        value="{{ $detail->id }}">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title"
+                                                                id="revisiModalLabel{{ $detail->id }}">
+                                                                Catatan Revisi - {{ $detail->name }}
+                                                            </h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+
+                                                            @if (session('error_' . $detail->id))
+                                                                <div class="alert alert-danger">
+                                                                    {{ session('error_' . $detail->id) }}
+                                                                </div>
+                                                            @endif
+                                                            @if ($errors->any() && old('detailfitur_id') == $detail->id)
+                                                                <div class="alert alert-danger">
+                                                                    <ul class="mb-0">
+                                                                        @foreach ($errors->all() as $error)
+                                                                            <li>{{ $error }}</li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                </div>
+                                                            @endif
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Job Type</label>
+                                                                <select name="project_job_type_id" class="form-select"
+                                                                    required>
+                                                                    <option value="">-- Pilih Job Type --</option>
+                                                                    @foreach ($jobTypes as $jt)
+                                                                        <option value="{{ $jt->id }}"
+                                                                            {{ old('project_job_type_id') == $jt->id ? 'selected' : '' }}>
+                                                                            {{ $jt->jobtype->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Catatan Revisi</label>
+                                                                <textarea name="note" class="form-control" rows="4" placeholder="Tulis catatan revisi di sini..." required>{{ old('note') }}</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary btn-sm"
+                                                                data-bs-dismiss="modal">Batal</button>
+                                                            <button type="submit" class="btn btn-warning btn-sm">Simpan
+                                                                Catatan</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @endforeach
+
                                 @empty
                                     <p class="text-muted">Belum ada fitur ditambahkan.</p>
                                 @endforelse
@@ -224,6 +283,21 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Script untuk buka modal revisi jika ada error validasi --}}
+                @if ($errors->any() && old('detailfitur_id'))
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var modalId = '{{ old('detailfitur_id') }}';
+                            var modalElement = document.getElementById('revisiModal' + modalId);
+                            if (modalElement) {
+                                var modal = new bootstrap.Modal(modalElement);
+                                modal.show();
+                            }
+                        });
+                    </script>
+                @endif
+
             </div>
         </div>
     </div>
