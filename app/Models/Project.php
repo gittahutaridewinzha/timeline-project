@@ -11,7 +11,7 @@ class Project extends Model
 
     protected $table = 'project';
 
-    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id'];
+    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id','deadline','status'];
 
     public function ProjectManager()
     {
@@ -47,5 +47,10 @@ class Project extends Model
     public function valueProject()
     {
         return $this->hasOne(ValueProject::class);
+    }
+
+    public function projectJobTypes()
+    {
+        return $this->hasMany(ProjectJobTypes::class, 'project_id');
     }
 }

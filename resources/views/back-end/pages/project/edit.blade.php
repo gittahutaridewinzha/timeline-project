@@ -23,6 +23,11 @@
                                 <textarea name="deskripsi" id="deskripsi" rows="4" class="form-control" required>{{ $project->deskripsi }}</textarea>
                             </div>
 
+                            <div class="form-group mb-3">
+                                <label for="deadline">Deadline</label>
+                                <input type="date" name="deadline" id="deadline" class="form-control" value="{{ old('deadline', $project->deadline) }}">
+                            </div>
+
                             <div class="mb-3">
                                 <label for="category_id" class="form-label">Pilih Kategori Project</label>
                                 <select class="form-select" id="category_id" name="category_id" required>
@@ -59,6 +64,19 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <div class="form-group mb-3">
+                                <label for="status">Status</label>
+                                <select name="status" id="status" class="form-control" {{ $project->status === 'completed' ? 'disabled' : '' }}>
+                                    <option value="on progress" {{ $project->status === 'on progress' ? 'selected' : '' }}>On Progress</option>
+                                    <option value="completed" {{ $project->status === 'completed' ? 'selected' : '' }}>Completed</option>
+                                </select>
+
+                                @if ($project->status === 'completed')
+                                    <input type="hidden" name="status" value="completed">
+                                @endif
+                            </div>
+
 
                             <button type="submit" class="btn btn-primary">Update</button>
                             <a href="{{ route('project.index') }}" class="btn btn-secondary">Kembali</a>

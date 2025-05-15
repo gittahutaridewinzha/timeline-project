@@ -8,7 +8,7 @@
                     <div class="col-md-12 grid-margin">
                         <div class="row">
                             <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                                <h3 class="font-weight-bold">Welcome John</h3>
+                                <h3 class="font-weight-bold">Welcome {{ Auth::user()->name }}</h3>
                                 <h6 class="font-weight-normal mb-0">All systems are running smoothly! You have
                                     <span class="text-primary">3 unread alerts!</span>
                                 </h6>
@@ -34,57 +34,36 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6 grid-margin stretch-card">
-                        <div class="card tale-bg">
-                            <div class="card-people mt-auto">
-                                <img src="images/dashboard/people.svg" alt="people">
-                                <div class="weather-info">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h2 class="mb-0 font-weight-normal"><i
-                                                    class="icon-sun me-2"></i>31<sup>C</sup></h2>
-                                        </div>
-                                        <div class="ms-2">
-                                            <h4 class="location font-weight-normal">Chicago</h4>
-                                            <h6 class="font-weight-normal">Illinois</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 grid-margin transparent">
                         <div class="row">
-                            <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="col-md-3 mb-4 stretch-card transparent">
                                 <div class="card card-tale">
                                     <div class="card-body">
-                                        <p class="mb-4">Today’s Bookings</p>
-                                        <p class="fs-30 mb-2">4006</p>
-                                        <p>10.00% (30 days)</p>
+                                        <p class="mb-4">Total Projects This Month</p>
+                                        <p class="fs-30 mb-2">{{ $totalProjects }}</p>
+                                        <p>{{ \Carbon\Carbon::now()->format('F Y') }}</p>
                                     </div>
                                 </div>
+
                             </div>
-                            <div class="col-md-6 mb-4 stretch-card transparent">
+                            <div class="col-md-3 mb-4 stretch-card transparent">
                                 <div class="card card-dark-blue">
                                     <div class="card-body">
-                                        <p class="mb-4">Total Bookings</p>
-                                        <p class="fs-30 mb-2">61344</p>
-                                        <p>22.00% (30 days)</p>
+                                        <p class="mb-4">Total Completed Projects</p>
+                                        <p class="fs-30 mb-2">{{ $totalCompletedProjects }}</p>
+                                        <p>{{ \Carbon\Carbon::now()->format('F Y') }}</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                            <div class="col-md-3 mb-4 stretch-card transparent">
                                 <div class="card card-light-blue">
                                     <div class="card-body">
-                                        <p class="mb-4">Number of Meetings</p>
-                                        <p class="fs-30 mb-2">34040</p>
-                                        <p>2.00% (30 days)</p>
+                                        <p class="mb-4">Total Employees</p>
+                                        <p class="fs-30 mb-2">{{ $totalEmployees }}</p>
+                                        <p>Total Employee in WAN Teknologi</p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 stretch-card transparent">
+                            <div class="col-md-3 mb-4 stretch-card transparent">
                                 <div class="card card-light-danger">
                                     <div class="card-body">
                                         <p class="mb-4">Number of Clients</p>
@@ -94,7 +73,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
                 <div class="row" style="padding-top: 15px;">
                     <div class="col-md-12 grid-margin stretch-card">
@@ -104,11 +82,10 @@
                                     <p class="card-title">Sales Report</p>
                                     <a href="#" class="text-info">View all</a>
                                 </div>
-                                <p class="font-weight-500">The total number of sessions within the date range. It
-                                    is the period time a user is actively engaged with your website, page or app,
-                                    etc</p>
+                                <p class="font-weight-500">The total number of sessions within the date range.</p>
                                 <div id="sales-chart-legend" class="chartjs-legend mt-4 mb-2"></div>
-                                <canvas id="sales-chart"></canvas>
+                                <canvas id="project-chart"></canvas> <!-- ID baru -->
+                                <div id="no-data-message" style="display:none; color: red;">Data tidak tersedia untuk bulan ini.</div>
                             </div>
                         </div>
                     </div>
@@ -382,74 +359,26 @@
                     <div class="col-md-12 grid-margin stretch-card">
                         <div class="card">
                             <div class="card-body">
-                                <p class="card-title mb-0">Top Products</p>
+                                <p class="card-title mb-0">Top Projects</p>
                                 <div class="table-responsive">
                                     <table class="table table-striped table-borderless">
                                         <thead>
                                             <tr>
-                                                <th>Product</th>
-                                                <th>Price</th>
-                                                <th>Date</th>
+                                                <th>Project Name</th>
+                                                <th>Deadline</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @foreach ($projects as $project)
                                             <tr>
-                                                <td>Search Engine Marketing</td>
-                                                <td class="font-weight-bold">$362</td>
-                                                <td>21 Sep 2018</td>
+                                                <td>{{ $project->nama_project }}</td>
+                                                <td>{{ $project->deadline ? \Carbon\Carbon::parse($project->deadline)->format('d M Y') : 'NULL' }}</td>
                                                 <td class="font-weight-medium">
-                                                    <div class="badge badge-success">Completed</div>
+                                                    <div class="badge badge-{{ $project->status == 'on progress' ? 'warning' : 'success' }}">{{ ucfirst($project->status) }}</div>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td>Search Engine Optimization</td>
-                                                <td class="font-weight-bold">$116</td>
-                                                <td>13 Jun 2018</td>
-                                                <td class="font-weight-medium">
-                                                    <div class="badge badge-success">Completed</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Display Advertising</td>
-                                                <td class="font-weight-bold">$551</td>
-                                                <td>28 Sep 2018</td>
-                                                <td class="font-weight-medium">
-                                                    <div class="badge badge-warning">Pending</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Pay Per Click Advertising</td>
-                                                <td class="font-weight-bold">$523</td>
-                                                <td>30 Jun 2018</td>
-                                                <td class="font-weight-medium">
-                                                    <div class="badge badge-warning">Pending</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>E-Mail Marketing</td>
-                                                <td class="font-weight-bold">$781</td>
-                                                <td>01 Nov 2018</td>
-                                                <td class="font-weight-medium">
-                                                    <div class="badge badge-danger">Cancelled</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Referral Marketing</td>
-                                                <td class="font-weight-bold">$283</td>
-                                                <td>20 Mar 2018</td>
-                                                <td class="font-weight-medium">
-                                                    <div class="badge badge-warning">Pending</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Social media marketing</td>
-                                                <td class="font-weight-bold">$897</td>
-                                                <td>26 Oct 2018</td>
-                                                <td class="font-weight-medium">
-                                                    <div class="badge badge-success">Completed</div>
-                                                </td>
-                                            </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>
@@ -474,4 +403,70 @@
         </div>
         <!-- main-panel ends -->
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let salesChartInstance = null;
+
+    function isDataEmpty(data) {
+        return data.every(v => v === 0);
+    }
+
+    function renderSalesChart(data) {
+        const canvas = document.getElementById('project-chart'); // ID baru
+        const ctx = canvas.getContext('2d');
+
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
+            salesChartInstance = null;
+        }
+
+        if (isDataEmpty(data)) {
+            canvas.style.display = 'none';
+            document.getElementById('no-data-message').style.display = 'block';
+            return;
+        } else {
+            canvas.style.display = 'block';
+            document.getElementById('no-data-message').style.display = 'none';
+        }
+
+        salesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Total Projects',
+                    data: @json($allMonths),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `Total: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Jumlah Proyek' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Bulan' }
+                    }
+                }
+            }
+        });
+    }
+
+    renderSalesChart(@json($allMonths));
+</script>
 @endsection
