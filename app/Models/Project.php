@@ -48,4 +48,9 @@ class Project extends Model
     {
         return $this->hasOne(ValueProject::class);
     }
+
+    public function projectJobTypes()
+    {
+        return $this->hasMany(ProjectJobTypes::class, 'project_id');
+    }
 }
