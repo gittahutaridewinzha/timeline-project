@@ -332,6 +332,11 @@
                                        <a class="nav-link" href="{{ url('/category-project') }}">Category Project</a>
                                    </li>
                                @endif
+                               @if (Auth::user()->hasAccessToMenu('project-type'))
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ url('/project-type') }}">Project Type</a>
+                                    </li>
+                                @endif
                            </ul>
                        </div>
                    </li>
@@ -360,15 +365,6 @@
                        <a class="nav-link" href="{{ url('/pengerjaan') }}">
                            <i class="bi bi-check2-square menu-icon"></i> {{-- Ikon checklist untuk Pengerjaan --}}
                            <span class="menu-title">Pengerjaan</span>
-                       </a>
-                   </li>
-               @endif
-
-               @if (Auth::user()->hasAccessToMenu('project-type'))
-                   <li class="nav-item">
-                       <a class="nav-link" href="{{ url('/project-type') }}">
-                           <i class="bi bi-check2-square menu-icon"></i> {{-- Ikon checklist untuk Pengerjaan --}}
-                           <span class="menu-title">Project Type</span>
                        </a>
                    </li>
                @endif
