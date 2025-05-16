@@ -7,6 +7,7 @@ use App\Models\CategoryProjectsDetail;
 use App\Models\JobType;
 use App\Models\Project;
 use App\Models\ProjectJobTypes;
+use App\Models\ProjectType;
 use App\Models\ValueProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,12 +60,13 @@ class DashboardProjectController extends Controller
     {
         // Ambil semua kategori proyek
         $categoryProject = CategoryProject::all();
+        $projectType = ProjectType::all();
 
         // Ambil semua pekerjaan terkait kategori proyek, jika ada (dapat disesuaikan sesuai logika)
         $jobTypes = CategoryProjectsDetail::with('jobType')->get();
 
         // Kirim data ke view
-        return view('back-end.pages.project.create', compact('categoryProject', 'jobTypes'));
+        return view('back-end.pages.project.create', compact('categoryProject', 'jobTypes','projectType'));
     }
 
     // Menyimpan project baru
@@ -74,6 +76,7 @@ class DashboardProjectController extends Controller
         Log::debug('Request Data:', ['data' => $request->all()]);
 
         $request->validate([
+            'id_project_type' => 'required',
             'nama_project' => 'required|string|max:255',
             'deskripsi' => 'required',
             'category_id' => 'required|exists:category_projects,id',
@@ -97,6 +100,7 @@ class DashboardProjectController extends Controller
 
         // Simpan project utama
         $project = Project::create([
+            'id_project_type' => $request->id_project_type,
             'nama_project' => $request->nama_project,
             'deskripsi' => $request->deskripsi,
             'category_id' => $request->category_id,
@@ -229,11 +233,11 @@ class DashboardProjectController extends Controller
     public function edit($id)
     {
         $project = Project::with('jobTypes')->find($id);
-
+        $projectType = ProjectType::all();
         $categoryProject = CategoryProject::all();
         $jobTypes = CategoryProjectsDetail::with('jobType')->get();
 
-        return view('back-end.pages.project.edit', compact('project', 'categoryProject', 'jobTypes'));
+        return view('back-end.pages.project.edit', compact('project', 'categoryProject', 'jobTypes', 'projectType'));
     }
 
     // Menyimpan pembaruan project
@@ -248,6 +252,7 @@ class DashboardProjectController extends Controller
         }
 
         $request->validate([
+            'id_project_type' => 'required',
             'nama_project' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'category_id' => 'required|exists:category_projects,id',
@@ -258,6 +263,7 @@ class DashboardProjectController extends Controller
         ]);
 
         $project->update([
+            'id_project_type' => $request->id_project_type,
             'nama_project' => $request->nama_project,
             'deskripsi' => $request->deskripsi,
             'category_id' => $request->category_id,

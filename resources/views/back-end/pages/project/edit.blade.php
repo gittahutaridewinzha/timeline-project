@@ -13,6 +13,18 @@
                             @method('PUT')
 
                             <div class="form-group mb-3">
+                                <label for="id_project_type">Pilih Tipe Project</label>
+                                <select name="id_project_type" id="id_project_type" class="form-select" required>
+                                    <option value="">Pilih Tipe Project</option>
+                                    @foreach ($projectType as $type)
+                                        <option value="{{ $type->id }}" {{ $project->id_project_type == $type->id ? 'selected' : '' }}>
+                                            {{ $type->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
                                 <label for="nama_project">Nama Project</label>
                                 <input type="text" name="nama_project" id="nama_project" class="form-control"
                                     value="{{ $project->nama_project }}" required>
