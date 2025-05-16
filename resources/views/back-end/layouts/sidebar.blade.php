@@ -364,6 +364,15 @@
                    </li>
                @endif
 
+               @if (Auth::user()->hasAccessToMenu('project-type'))
+                   <li class="nav-item">
+                       <a class="nav-link" href="{{ url('/project-type') }}">
+                           <i class="bi bi-check2-square menu-icon"></i> {{-- Ikon checklist untuk Pengerjaan --}}
+                           <span class="menu-title">Project Type</span>
+                       </a>
+                   </li>
+               @endif
+
                {{-- Otoritas --}}
                @if (Auth::user()->hasAccessToMenu('register') ||
                        Auth::user()->hasAccessToMenu('user-data') ||

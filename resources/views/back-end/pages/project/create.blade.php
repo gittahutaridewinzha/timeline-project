@@ -12,6 +12,18 @@
                             @csrf
 
                             <div class="form-group mb-3">
+                                <label for="id_project_type">Tipe Project</label>
+                                <select name="id_project_type" id="id_project_type" class="form-select">
+                                    <option value="">-- Pilih Tipe Project --</option>
+                                    @foreach($projectType as $type)
+                                        <option value="{{ $type->id }}" {{ old('id_project_type', $project->id_project_type ?? '') == $type->id ? 'selected' : '' }}>
+                                            {{ $type->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
                                 <label for="nama_project">Nama Project</label>
                                 <input type="text" name="nama_project" id="nama_project" class="form-control" required>
                             </div>

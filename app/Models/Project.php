@@ -11,7 +11,7 @@ class Project extends Model
 
     protected $table = 'project';
 
-    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id','deadline','status'];
+    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id', 'deadline', 'status', 'id_project_type'];
 
     public function ProjectManager()
     {
@@ -53,4 +53,10 @@ class Project extends Model
     {
         return $this->hasMany(ProjectJobTypes::class, 'project_id');
     }
+
+    public function projectType()
+    {
+        return $this->belongsTo(ProjectType::class, 'id_project_type');
+    }
+
 }
