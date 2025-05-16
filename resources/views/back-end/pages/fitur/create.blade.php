@@ -125,12 +125,15 @@
                                                                         <div
                                                                             class="alert alert-warning py-1 px-2 mb-1 small">
                                                                             <div class="d-flex justify-content-between">
-                                                                                <div><i
+                                                                                <div>
+                                                                                    <i
                                                                                         class="bi bi-chat-left-text-fill me-1"></i>
-                                                                                    {{ $rev->note }}</div>
+                                                                                    {{ $rev->note }}
+                                                                                </div>
                                                                                 <small
                                                                                     class="text-muted ms-2">{{ $rev->created_at->format('d M Y') }}</small>
                                                                             </div>
+
                                                                             @if ($rev->projectJobType && $rev->projectJobType->jobtype)
                                                                                 <div class="text-muted small mt-1">
                                                                                     <i class="bi bi-tools me-1"></i>
@@ -138,8 +141,22 @@
                                                                                     {{ $rev->projectJobType->jobtype->name }}
                                                                                 </div>
                                                                             @endif
+
+                                                                            @if ($rev->gambar)
+                                                                                <div class="mt-2">
+                                                                                    <a href="{{ asset('images/revisi/' . $rev->gambar) }}"
+                                                                                        target="_blank"
+                                                                                        class="text-decoration-none text-primary d-inline-block">
+                                                                                        <i
+                                                                                            class="bi bi-file-earmark-text me-1"></i>
+                                                                                        Lihat Dokumen
+                                                                                    </a>
+                                                                                </div>
+                                                                            @endif
                                                                         </div>
                                                                     @endforeach
+
+
                                                                 </div>
                                                             @endif
                                                         @endforeach
@@ -215,7 +232,8 @@
                                         <div class="modal fade" id="revisiModal{{ $detail->id }}" tabindex="-1"
                                             aria-labelledby="revisiModalLabel{{ $detail->id }}" aria-hidden="true">
                                             <div class="modal-dialog">
-                                                <form action="{{ route('fitur.revisi') }}" method="POST">
+                                                <form action="{{ route('fitur.revisi') }}" method="POST"
+                                                    enctype="multipart/form-data">
                                                     @csrf
                                                     <input type="hidden" name="detailfitur_id"
                                                         value="{{ $detail->id }}">
@@ -263,6 +281,24 @@
                                                                 <label class="form-label">Catatan Revisi</label>
                                                                 <textarea name="note" class="form-control" rows="4" placeholder="Tulis catatan revisi di sini..." required>{{ old('note') }}</textarea>
                                                             </div>
+
+                                                            <input type="file" class="form-control"
+                                                                id="gambar_{{ $detail->id }}" name="gambar"
+                                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                                onchange="previewGambar(event, {{ $detail->id }})">
+
+                                                            <div id="preview_container_{{ $detail->id }}"
+                                                                style="margin-top: 10px; display: none;">
+                                                                <img id="preview_img_{{ $detail->id }}" src="#"
+                                                                    alt="Preview Gambar"
+                                                                    style="max-width: 80%; height: auto;"
+                                                                    class="img-fluid rounded">
+                                                                <div id="file_name_{{ $detail->id }}"
+                                                                    class="mt-2 text-muted"></div>
+                                                            </div>
+
+
+
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary btn-sm"
@@ -271,6 +307,8 @@
                                                                 Catatan</button>
                                                         </div>
                                                     </div>
+
+
                                                 </form>
                                             </div>
                                         </div>
@@ -351,6 +389,36 @@
         });
     </script>
 
+    {{-- Tempatkan ini di bawah seluruh halaman --}}
+    <script>
+        function previewGambar(event, id) {
+            const input = event.target;
+            const file = input.files[0];
+            const imgPreview = document.getElementById(`preview_img_${id}`);
+            const fileName = document.getElementById(`file_name_${id}`);
+            const container = document.getElementById(`preview_container_${id}`);
+
+            if (file) {
+                const fileType = file.type;
+                container.style.display = 'block';
+
+                if (fileType.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgPreview.src = e.target.result;
+                        imgPreview.style.display = 'block';
+                        fileName.innerText = file.name;
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    imgPreview.style.display = 'none';
+                    fileName.innerText = "File dipilih: " + file.name;
+                }
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    </script>
 
 
 @endsection

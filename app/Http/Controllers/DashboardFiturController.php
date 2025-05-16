@@ -98,21 +98,22 @@ class DashboardFiturController extends Controller
             'detailfitur_id' => 'required|exists:detail_fiturs,id',
             'project_job_type_id' => 'required|exists:project_job_types,id',
             'note' => 'required|string|max:1000',
+            'gambar' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // max 5MB
         ]);
 
-        Log::info('Revisi Project Data:', [
-            'detailfitur_id' => $request->detailfitur_id,
-            'project_job_type_id' => $request->project_job_type_id,
-            'note' => $request->note,
-        ]);
+        $namaFile = null;
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $namaFile = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/revisi/'), $namaFile);
+        }
 
         $revisi = RevisiProject::create([
             'detailfitur_id' => $request->detailfitur_id,
             'project_job_type_id' => $request->project_job_type_id,
             'note' => $request->note,
+            'gambar' => $namaFile,
         ]);
-
-        Log::info('RevisiProject berhasil disimpan:', $revisi->toArray());
 
         return back()->with('success', 'Catatan revisi berhasil disimpan.');
     }

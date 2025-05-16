@@ -11,7 +11,7 @@ class RevisiProject extends Model
 
     protected $table = 'revisi_projects';
 
-    protected $fillable = [ 'detailfitur_id', 'note', 'project_job_type_id' ];
+    protected $fillable = [ 'detailfitur_id', 'note', 'gambar', 'project_job_type_id' ];
 
     public function detailfitur(){
         return $this->belongsTo(Fitur::class, 'detailfitur_id' );

@@ -123,6 +123,11 @@
             top: 1px;
             /* atau coba 2px sesuai kebutuhan */
         }
+         .modal-content img {
+        display: inline-block;
+        max-width: 100%;
+        height: 100%;
+    }
     </style>
 </head>
 
