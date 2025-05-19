@@ -1,6 +1,10 @@
 @extends('back-end.layouts.main')
 
 @section('content')
+    @php
+        use Carbon\Carbon;
+    @endphp
+
     <div class="main-panel" style="margin-top: 40px;">
         <div class="content-wrapper">
             <div class="col-lg-12 grid-margin stretch-card">
@@ -21,11 +25,15 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($project as $project)
+                                        @php
+                                            $isLate = $project->deadline && Carbon::now()->gt(Carbon::parse($project->deadline)) && $project->persentase_pengerjaan < 100;
+                                        @endphp
                                         <tr>
-                                            <td>{{ $project->nama_project }}</td>
+                                            <td class="text-center">{{ $project->nama_project }}</td>
                                             <td>
-                                                <div class="progress" style="height: 20px; position: relative;">
-                                                    <div class="progress-bar {{ $project->persentase_pengerjaan == 0 ? 'bg-secondary' : 'bg-primary' }}"
+                                                <div class="progress {{ $isLate ? 'border border-danger' : '' }}" style="height: 20px; position: relative;">
+                                                    <div class="progress-bar
+                                                        {{ $isLate ? 'bg-danger' : ($project->persentase_pengerjaan == 0 ? 'bg-secondary' : 'bg-primary') }}"
                                                         role="progressbar"
                                                         style="width: {{ $project->persentase_pengerjaan ?? 0 }}%;"
                                                         aria-valuenow="{{ $project->persentase_pengerjaan ?? 0 }}"
@@ -36,6 +44,9 @@
                                                         </span>
                                                     </div>
                                                 </div>
+                                                @if ($isLate)
+                                                    <span class="text-danger fw-bold d-block mt-1 text-center"></span>
+                                                @endif
                                             </td>
                                             <td class="text-center">
                                                 <a href="{{ route('overview-project.show', $project->id) }}"
@@ -48,6 +59,7 @@
                                 </tbody>
                             </table>
                         </div>
+
                     </div>
                 </div>
             </div>
