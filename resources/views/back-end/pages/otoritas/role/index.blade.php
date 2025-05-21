@@ -1,14 +1,14 @@
 @extends('back-end.layouts.main')
 
 @section('content')
-    <div class="main-panel" style="margin-top: 10px;">
+    <div class="main-panel" style="margin-top: 40px;">
 
         <div class="content-wrapper">
             @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             @endif
             <div class="col-lg-12 grid-margin stretch-card">
 
@@ -26,29 +26,32 @@
 
 
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table id="myTable" class="table table-striped display w-100">
                                 <thead>
                                     <tr>
                                         <th>Nama Role</th>
-                                        <th>Aksi</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($roles as $r)
-                                    <tr>
-                                        <td>{{ $r->name }}</td>
-                                        <td>
-                                            <a href="{{ route('roles.edit', $r->id) }}" class="btn btn-sm btn-warning text-white">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <a type="button" class="btn btn-sm btn-danger text-white"
-                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                data-id="{{ $r->id }}">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
+                                        <tr>
+                                            <td>{{ $r->name }}</td>
+                                            <td>
+                                                <div class="d-flex justify-content-center align-items-center gap-1">
+                                                    <a href="{{ route('roles.edit', $r->id) }}"
+                                                        class="btn btn-action-sm btn-warning text-white">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
+                                                    <a type="button" class="btn btn-action-sm btn-danger text-white"
+                                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                        data-id="{{ $r->id }}">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>

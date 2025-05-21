@@ -14,8 +14,9 @@
                             <h4 class="card-title mb-0">Overview Project</h4>
                         </div>
 
+
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                             <table id="myTable" class="table table-striped display w-100">
                                 <thead>
                                     <tr>
                                         <th class="text-center">Nama Project</th>

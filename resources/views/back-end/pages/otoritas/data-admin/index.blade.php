@@ -24,13 +24,13 @@
 
 
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table id="myTable" class="table table-striped display w-100">
                                 <thead>
                                     <tr>
                                         <th>Nama</th>
                                         <th>Email</th>
                                         <th>Role</th>
-                                        <th>Aksi</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -40,14 +40,20 @@
                                             <td>{{ $u->email }}</td>
                                             <td>{{ $u->role->name }}</td>
                                             <td>
-                                                <a href="{{ route('data-user.edit', $u->id) }}"
-                                                    class="btn btn-sm btn-warning text-white">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
-                                                   <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteModal{{ $u->id }}" title="Hapus">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                <div class="d-flex justify-content-center align-items-center gap-1">
+                                                    <button
+                                                        onclick="window.location='{{ route('data-user.edit', $u->id) }}'"
+                                                        class="btn btn-warning btn-action-sm" title="Edit">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                     </button>
+
+                                                    <button class="btn btn-danger btn-action-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ $u->id }}" title="Hapus">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+
+                                                </div>
+
                                             </td>
                                         </tr>
                                     @endforeach

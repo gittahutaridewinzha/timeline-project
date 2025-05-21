@@ -17,7 +17,7 @@
                             <h4 class="card-title mb-0">Manajemen Project</h4>
 
                             @if ($user->role->name === 'Marketing')
-                                <a href="{{ route('project.create') }}" class="btn btn-primary btn-sm">
+                                <a href="{{ route('project.create') }}" class="btn btn-primary btn-action-sm">
                                     <i class="fas fa-plus"></i> Tambah Project
                                 </a>
                             @endif
@@ -56,11 +56,11 @@
                                             <td>
                                                 @if ($user->role->name === 'Marketing')
                                                     <a href="{{ route('project.edit', $project->id) }}"
-                                                        class="btn btn-sm btn-warning text-white">
+                                                        class="btn btn-action-sm btn-warning text-white">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </a>
 
-                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                                    <button class="btn btn-danger btn-action-sm" data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal{{ $project->id }}" title="Hapus">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
@@ -68,17 +68,17 @@
 
                                                 @if ($user->role->name === 'Project Manager')
                                                     <a href="{{ route('fitur.index', ['project' => $project->id]) }}"
-                                                        class="btn btn-sm btn-primary text-white">
+                                                        class="btn btn-action-sm btn-primary text-white">
                                                         <i class="bi bi-plus-circle"></i>
                                                     </a>
 
                                                     <a href="{{ route('penugasan.index', $project->id) }}"
-                                                        class="btn btn-sm btn-info text-white">
+                                                        class="btn btn-action-sm btn-info text-white">
                                                         <i class="bi bi-person-check"></i>
                                                     </a>
 
                                                     <a href="{{ route('project.show', $project->id) }}"
-                                                        class="btn btn-sm btn-success text-white">
+                                                        class="btn btn-action-sm btn-success text-white">
                                                         <i class="bi bi-hourglass-split"></i>
                                                     </a>
                                                 @endif
