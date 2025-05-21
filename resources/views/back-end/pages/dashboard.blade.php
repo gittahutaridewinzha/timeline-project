@@ -7,10 +7,33 @@
                 <div class="row" style="padding-top: 50px;">
                     <div class="col-md-12 grid-margin">
                         <div class="row">
+                            @php
+                                use Carbon\Carbon;
+
+                                $user = auth()->user();
+                                $roleId = $user->role_id;
+
+                                // Ambil tanggal hari ini (tanpa waktu)
+                                $today = Carbon::today();
+
+                                $query = App\Models\Project::whereDate('deadline', '=', $today)
+                                            ->where('status', '!=', 'selesai');
+
+                                if ($roleId == 5) {
+                                    $query->where('id_project_manager', $user->id);
+                                } elseif ($roleId == 7) {
+                                    $query->whereHas('jobTypeAssignments', function ($q) use ($user) {
+                                        $q->where('user_id', $user->id);
+                                    });
+                                }
+
+                                $lateProjectsToday = $query->get();
+                            @endphp
                             <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                                 <h3 class="font-weight-bold">Welcome {{ Auth::user()->name }}</h3>
-                                <h6 class="font-weight-normal mb-0">All systems are running smoothly! You have
-                                    <span class="text-primary">3 unread alerts!</span>
+                                <h6 class="font-weight-normal mb-0">
+                                    All systems are running smoothly! You have
+                                    <span class="text-primary">{{ $lateProjectsToday->count() }} Message{{ $lateProjectsToday->count() != 1 ? 's' : '' }}</span>
                                 </h6>
                             </div>
                             <div class="col-12 col-xl-4">
@@ -68,7 +91,7 @@
                                     <div class="card-body">
                                         <p class="mb-4">Upcoming Projects</p>
                                         <p class="fs-30 mb-2">{{ $upcomingProjectsCount }}</p>
-                                        <p>Bulan {{ \Carbon\Carbon::now()->addMonth()->translatedFormat('F') }}</p>
+                                        <p>Next Month: {{ \Carbon\Carbon::now()->addMonth()->translatedFormat('F') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -326,122 +349,118 @@
             </div>
             <!-- content-wrapper ends -->
             <!-- partial:partials/_footer.html -->
-            <footer class="footer">
+            {{-- <footer class="footer">
                 <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                    <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2023.
-                        Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin
-                            template</a> from BootstrapDash. All rights reserved. Distributed by <a
-                            href="https://themewagon.com" target="_blank">ThemeWagon</a></span>
-                    <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made
+                    <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2025
+                            <a href="https://www.bootstrapdash.com/" target="_blank">
+                            </a> Timiline Project. All rights reserved. Created by <a
+                            href="https://www.instagram.com/politekniknegeripadang_pnp/?hl=id" target="_blank">Intern PNP</a></span>
+                    <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> made
                         with <i class="ti-heart text-danger ms-1"></i></span>
                 </div>
-            </footer>
+            </footer> --}}
             <!-- partial -->
         </div>
-        <!-- main-panel ends -->
-    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    let salesChartInstance = null;
+    <script>
+        let salesChartInstance = null;
 
-    function isDataEmpty(data) {
-        return data.every(v => v === 0);
-    }
-
-    function renderSalesChart(data) {
-        const canvas = document.getElementById('project-chart'); // ID baru
-        const ctx = canvas.getContext('2d');
-
-        if (salesChartInstance) {
-            salesChartInstance.destroy();
-            salesChartInstance = null;
+        function isDataEmpty(data) {
+            return data.every(v => v === 0);
         }
 
-        if (isDataEmpty(data)) {
-            canvas.style.display = 'none';
-            document.getElementById('no-data-message').style.display = 'block';
-            return;
-        } else {
-            canvas.style.display = 'block';
-            document.getElementById('no-data-message').style.display = 'none';
+        function renderSalesChart(data) {
+            const canvas = document.getElementById('project-chart'); // ID baru
+            const ctx = canvas.getContext('2d');
+
+            if (salesChartInstance) {
+                salesChartInstance.destroy();
+                salesChartInstance = null;
+            }
+
+            if (isDataEmpty(data)) {
+                canvas.style.display = 'none';
+                document.getElementById('no-data-message').style.display = 'block';
+                return;
+            } else {
+                canvas.style.display = 'block';
+                document.getElementById('no-data-message').style.display = 'none';
+            }
+
+            salesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Total Projects',
+                        data: @json($allMonths),
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `Total: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Jumlah Proyek' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Bulan' }
+                        }
+                    }
+                }
+            });
         }
 
-        salesChartInstance = new Chart(ctx, {
-            type: 'bar',
+        renderSalesChart(@json($allMonths));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctxProjectType = document.getElementById('project-type-doughnut').getContext('2d');
+
+        const projectTypeDoughnutChart = new Chart(ctxProjectType, {
+            type: 'doughnut',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                labels: @json($chartLabels),
                 datasets: [{
-                    label: 'Total Projects',
-                    data: @json($allMonths),
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    borderRadius: 5,
+                    label: 'Total Project',
+                    data: @json($chartData),
+                    backgroundColor: [
+                        '#4e73df',
+                        '#f6c23e',
+                        '#e74a3b',
+                        '#36b9cc',
+                        '#1cc88a',
+                        '#6f42c1'
+                    ],
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false, // <== Tambahkan ini
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `Total: ${context.raw}`;
-                            }
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Jumlah Proyek' }
-                    },
-                    x: {
-                        title: { display: true, text: 'Bulan' }
                     }
                 }
             }
         });
-    }
-
-    renderSalesChart(@json($allMonths));
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctxProjectType = document.getElementById('project-type-doughnut').getContext('2d');
-
-    const projectTypeDoughnutChart = new Chart(ctxProjectType, {
-        type: 'doughnut',
-        data: {
-            labels: @json($chartLabels),
-            datasets: [{
-                label: 'Project Type Distribution',
-                data: @json($chartData),
-                backgroundColor: [
-                    '#4e73df',
-                    '#f6c23e',
-                    '#e74a3b',
-                    '#36b9cc',
-                    '#1cc88a',
-                    '#6f42c1'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // <== Tambahkan ini
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        boxWidth: 12
-                    }
-                }
-            }
-        }
-    });
     </script>
-
-
 @endsection

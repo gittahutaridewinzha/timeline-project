@@ -1,7 +1,7 @@
 @extends('back-end.layouts.main')
 
 @section('content')
-    <div class="main-panel" style="margin-top: 10px;">
+    <div class="main-panel" style="margin-top: 45px;">
         <div class="content-wrapper">
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -14,7 +14,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-3">
-                            Input Progress Pengerjaan Project: {{ $project->nama_project ?? '-' }}
+                            Input Progress Pengerjaan Project: <span class="text-primary">{{ $project->nama_project ?? '-' }}</span>
                         </h4>
 
                         @php
@@ -24,12 +24,27 @@
                                 ->unique();
                         @endphp
 
-                        @if ($jobTypes->isNotEmpty())
-                            <p><strong>Job Type Anda:</strong> {{ $jobTypes->implode(', ') }}</p>
-                        @else
-                            <p><strong>Job Type Anda:</strong> Tidak ada</p>
-                        @endif
+                        <div class="d-flex flex-wrap align-items-center mb-3 gap-3">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-tag-multiple text-success me-1" style="font-size: 1.2rem;"></i>
+                                <span class="badge bg-success text-white">
+                                    {{ $project->CategoryProject->name ?? 'Tidak ada kategori' }}
+                                </span>
+                            </div>
 
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-briefcase-account me-1" style="font-size: 1.2rem;"></i>
+                                @if ($jobTypes->isNotEmpty())
+                                    <span class="badge bg-info text-white">
+                                        {{ $jobTypes->implode(', ') }}
+                                    </span>
+                                @else
+                                    <span class="text-muted fst-italic">Job Type Anda: Tidak ada</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- FORM DAN TABEL TETAP SAMA -->
                         <form action="{{ route('pengerjaan.store', $project->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="project_id" value="{{ $project->id }}">
@@ -48,7 +63,6 @@
                                         @php $no = 1; @endphp
                                         @foreach ($detailFiturs as $fitur)
                                             @php
-                                                // Cek catatan revisi berdasarkan detail fitur id dan project_job_type_id user sudah difilter di controller
                                                 $hasRevisi =
                                                     isset($catatanRevisi[$fitur->id]) &&
                                                     $catatanRevisi[$fitur->id]->count() > 0;
@@ -148,9 +162,6 @@
                                                                 </div>
                                                             @endforeach
 
-
-
-
                                                         </div>
                                                     @else
                                                         <div class="mt-2">
@@ -190,6 +201,7 @@
                             </a>
                         </form>
                     </div>
+
                 </div>
             </div>
         </div>

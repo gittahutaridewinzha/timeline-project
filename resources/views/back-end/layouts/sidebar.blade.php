@@ -27,8 +27,8 @@
                 $roleId = $user->role_id;
 
                 // Ambil semua project terlambat
-                $query = App\Models\Project::where('deadline', '<', now())
-                            ->where('status', '!=', 'selesai');
+                $query = \App\Models\Project::where('deadline', '<', now())
+                ->where('status', '!=', 'selesai');
 
                 // Jika Project Manager: hanya project yang dibuat olehnya
                 if ($roleId == 5) {
@@ -43,7 +43,6 @@
                 }
 
                 // Jika Owner / Super Admin: tidak perlu filter
-
                 $lateProjects = $query->get();
             @endphp
            <ul class="navbar-nav navbar-nav-right">
@@ -56,7 +55,7 @@
                         <p class="mb-0 font-weight-normal float-left dropdown-header">Notifications</p>
 
                         <div style="max-height: 300px; overflow-y: auto;">
-                            @foreach ($lateProjects->sortBy('deadline')->take(5) as $project)
+                            @foreach ($lateProjects->sortByDesc('deadline') as $project)
                                 <a class="dropdown-item preview-item">
                                     <div class="preview-thumbnail">
                                         <div class="preview-icon bg-danger">

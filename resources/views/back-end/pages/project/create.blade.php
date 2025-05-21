@@ -13,7 +13,7 @@
 
                             <div class="form-group mb-3">
                                 <label for="id_project_type">Tipe Project</label>
-                                <select name="id_project_type" id="id_project_type" class="form-select">
+                                <select name="id_project_type" id="id_project_type" class="form-select" style="color: black">
                                     <option value="">-- Pilih Tipe Project --</option>
                                     @foreach($projectType as $type)
                                         <option value="{{ $type->id }}" {{ old('id_project_type', $project->id_project_type ?? '') == $type->id ? 'selected' : '' }}>
@@ -42,7 +42,7 @@
 
                             <div class="mb-3">
                                 <label for="category_id" class="form-label">Pilih Kategori Project</label>
-                                <select class="form-select" id="category_id" name="category_id" required>
+                                <select class="form-select"  style="color: black;" id="category_id" name="category_id" required>
                                     <option value="">Pilih Kategori Project</option>
                                     @foreach ($categoryProject as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -53,10 +53,9 @@
                             <div class="mb-3">
                                 <label for="job_type_dropdown" class="form-label">Pilih Pekerjaan</label>
                                 <div id="selectedJobTypes" class="mb-2 d-flex flex-wrap gap-2"></div>
-                                <select id="job_type_dropdown" class="form-select">
+                                <select id="job_type_dropdown" class="form-select" style="color: black;">
                                     <option value="">Pilih Pekerjaan</option>
                                 </select>
-
                                 <div id="hiddenInputs"></div>
                             </div>
 

@@ -142,6 +142,9 @@
 
             <div class="content">
                 @yield('content')
+                <div class="">
+                    @include('back-end.layouts.footer')
+                </div>
             </div>
         </div>
 

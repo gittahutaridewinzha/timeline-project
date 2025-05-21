@@ -18,14 +18,16 @@ class DashboardPengerjaanController extends Controller
     {
         $userId = Auth::id();
 
-        $pengerjaans = Pengerjaan::with(['taskDistribution.jobType', 'project']) // Pastikan relasi dimuat
+        $pengerjaans = Pengerjaan::with(['taskDistribution.jobType', 'project'])
             ->get();
 
-        $projects = Project::with(['taskDistributions.jobType'])
+            $projects = Project::with(['taskDistributions.jobType', 'CategoryProject']) // ← tambahkan 'category'
             ->whereIn('id', function ($query) use ($userId) {
                 $query->select('project_id')->from('task_distributions')->where('user_id', $userId);
             })
+            ->orderBy('created_at', 'desc')
             ->get();
+
 
         return view('back-end.pages.pengerjaan.index', compact('projects', 'pengerjaans'));
     }
@@ -98,6 +100,6 @@ class DashboardPengerjaanController extends Controller
 
         return redirect()
             ->route('pengerjaan.tambah', ['project_id' => $request->project_id])
-            ->with('success', 'Pengerjaan berhasil ditambahkan.');
+            ->with('success', 'Pengerjaan berhasil diubah.');
     }
 }
