@@ -10,19 +10,10 @@
 
                         @php
                             use Carbon\Carbon;
-                            $deadline = Carbon::parse($project->deadline);
-                            $isLate = false;
-
-                            if ($totalAll >= 100) {
-                                // Kalau proyek selesai, cek kapan dia terakhir diupdate
-                                if ($project->updated_at->gt($deadline)) {
-                                    $isLate = true;
-                                }
-                            } else {
-                                if (Carbon::now()->gt($deadline)) {
-                                    $isLate = true;
-                                }
-                            }
+                            $isLate =
+                                $project->deadline &&
+                                Carbon::now()->gt(Carbon::parse($project->deadline)) &&
+                                $totalAll < 100;
                         @endphp
 
                         <div class="mb-4">
@@ -55,18 +46,17 @@
                                         @if ($project->status == 'completed')
                                             <span class="badge bg-success">Completed</span>
                                         @elseif ($isLate)
-                                            <span class="badge bg-danger" data-bs-toggle="tooltip"
-                                                title="Melewati deadline: {{ $deadline->format('d M Y') }}">
-                                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Terlambat
-                                            </span>
+                                            <span class="badge bg-danger">Terlambat</span>
                                         @else
                                             <span class="badge bg-warning text-dark">On Progress</span>
                                         @endif
                                     </td>
                                 </tr>
+
+                                </tr>
                                 <tr>
                                     <th>Deadline</th>
-                                    <td>{{ $deadline->format('d M Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($project->deadline)->format('d M Y') }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -100,49 +90,20 @@
 
                                                     <ul class="list-group list-group-flush">
                                                         @forelse ($detail->pengerjaans as $pengerjaan)
-                                                            @php
-                                                                $pengerjaanLate = false;
-                                                                $progress = $pengerjaan->pengerjaan ?? 0;
-                                                                $finishedAt = $pengerjaan->updated_at; // waktu terakhir update pengerjaan
-
-                                                                // Jika progress < 100 dan sudah lewat deadline = telat
-                                                                if (
-                                                                    $progress < 100 &&
-                                                                    \Carbon\Carbon::now()->gt($deadline)
-                                                                ) {
-                                                                    $pengerjaanLate = true;
-                                                                }
-                                                                // Jika progress 100 tapi selesai setelah deadline = telat
-                                                                elseif (
-                                                                    $progress >= 100 &&
-                                                                    $finishedAt->gt($deadline)
-                                                                ) {
-                                                                    $pengerjaanLate = true;
-                                                                }
-                                                            @endphp
                                                             <li
                                                                 class="list-group-item d-flex justify-content-between align-items-center">
                                                                 <div>
                                                                     <i class="bi bi-person-circle"></i>
-                                                                    <strong
-                                                                        @if ($pengerjaanLate) class="text-danger" @endif>
-                                                                        {{ $pengerjaan->user->name }}
-                                                                    </strong>
+                                                                    <strong>{{ $pengerjaan->user->name }}</strong>
 
-                                                                    @if ($pengerjaanLate)
-                                                                        <span class="ms-2"
-                                                                            style="font-size: 1.1rem; color: #ff4d4f;"
-                                                                            data-bs-toggle="tooltip"
-                                                                            title="Pengerjaan belum selesai.">
-                                                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                                                        </span>
+                                                                    @if ($isLate && $detail->rata_rata_progress < 100)
+                                                                        <span class="badge bg-danger ms-2">Terlambat</span>
                                                                     @endif
                                                                 </div>
                                                                 <span class="badge bg-primary">
-                                                                    {{ $progress }}%
+                                                                    {{ $pengerjaan->pengerjaan }}%
                                                                 </span>
                                                             </li>
-
                                                         @empty
                                                             <li class="list-group-item text-muted">Belum ada pengerjaan</li>
                                                         @endforelse
@@ -163,22 +124,15 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ route('overview-project.index') }}" class="btn btn-secondary mt-3">
+                        <a href="{{ route('overview-project.index') }}" class="btn btn-secondary mt-4">
                             Kembali
                         </a>
                     </div>
+
                 </div>
+
             </div>
+
         </div>
     </div>
-
-    {{-- Tooltip inisialisasi --}}
-    @push('scripts')
-        <script>
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        </script>
-    @endpush
 @endsection
