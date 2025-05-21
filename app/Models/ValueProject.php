@@ -11,7 +11,7 @@ class ValueProject extends Model
 
     protected $table = 'value_projects';
 
-    protected $fillable = ['project_id', 'value_project'];
+    protected $fillable = ['project_id', 'value_project', 'amount', 'payment_category'];
 
     public function projects()
     {
