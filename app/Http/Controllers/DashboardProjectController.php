@@ -8,6 +8,8 @@ use App\Models\JobType;
 use App\Models\Project;
 use App\Models\ProjectJobTypes;
 use App\Models\ProjectType;
+use App\Models\Roles;
+use App\Models\User;
 use App\Models\ValueProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +18,15 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardProjectController extends Controller
 {
-    // Menampilkan daftar project (index)
     public function index()
     {
+        $userId = Auth::id();
+
         // Ambil proyek dengan fiturnya dan detail fitur termasuk pengerjaan
-        $project = Project::where('id_project_manager', Auth::id())
-            ->with(['fiturs.detailFiturs.pengerjaans.user'])
-            ->paginate(10);
+        $project = Project::where(function ($query) use ($userId) {
+            $query->where('id_project_manager', $userId)
+                ->orWhere('marketing_id', $userId);
+        })->with(['fiturs.detailFiturs.pengerjaans.user'])->paginate(10);
 
         // Mapping untuk menghitung progres total per project
         $project->map(function ($proj) {
@@ -51,11 +55,12 @@ class DashboardProjectController extends Controller
             return $proj;
         });
 
-        // Kirim data project beserta progresnya ke view
-        return view('back-end.pages.project.index', compact('project')); // 'project' passed to the view
+        $roles = Roles::all();
+        $user = Auth::guard('admin')->user();
+
+        return view('back-end.pages.project.index', compact('project', 'roles', 'user'));
     }
 
-    // Menampilkan form tambah project
     public function create()
     {
         // Ambil semua kategori proyek
@@ -65,11 +70,14 @@ class DashboardProjectController extends Controller
         // Ambil semua pekerjaan terkait kategori proyek, jika ada (dapat disesuaikan sesuai logika)
         $jobTypes = CategoryProjectsDetail::with('jobType')->get();
 
+        $projectManagers = User::whereHas('role', function ($query) {
+            $query->where('name', 'Project Manager');
+        })->get();
+
         // Kirim data ke view
-        return view('back-end.pages.project.create', compact('categoryProject', 'jobTypes','projectType'));
+        return view('back-end.pages.project.create', compact('categoryProject', 'jobTypes', 'projectType', 'projectManagers'));
     }
 
-    // Menyimpan project baru
     public function store(Request $request)
     {
         // Tambahkan log untuk melihat data yang dikirimkan melalui form
@@ -85,18 +93,34 @@ class DashboardProjectController extends Controller
             'value_project' => 'nullable|numeric',
             'deadline' => 'date',
             'status' => 'required|in:on progress,completed',
+            'id_project_manager' => 'required',
+            'payment_category' => 'required|in:full_payment,dp,pelunasan',
+            'dp_amount'        => 'nullable|numeric|min:0',
         ]);
 
+        // Awal variabel
+        $valueProject = null;
+        $amount = 0;
+        $paymentCategory = $request->payment_category;
+        $dpAmountInput = $request->dp_amount;
 
-        // Proses value_project untuk menghapus simbol "Rp" dan tanda koma
+        // Proses value_project jika diisi
         if ($request->filled('value_project')) {
-            // Hapus simbol "Rp", spasi, dan tanda koma
-            $valueProject = preg_replace('/[^\d,]/', '', $request->value_project); // Hapus semua karakter non-numeric dan "Rp"
-            // Ganti tanda koma dengan titik untuk konversi angka
+            $valueProject = preg_replace('/[^\d,]/', '', $request->value_project);
             $valueProject = str_replace(',', '.', $valueProject);
-            // Ubah menjadi numerik
             $valueProject = (float) $valueProject;
         }
+
+        // Hitung amount berdasarkan kategori pembayaran
+        if ($paymentCategory === 'full_payment') {
+            $amount = $valueProject ?? 0;
+        } elseif ($paymentCategory === 'dp' && !empty($dpAmountInput)) {
+            $dpAmount = preg_replace('/[^\d]/', '', $dpAmountInput);
+            $amount = (float) $dpAmount;
+        } else {
+            $amount = 0; // default
+        }
+
 
         // Simpan project utama
         $project = Project::create([
@@ -104,9 +128,10 @@ class DashboardProjectController extends Controller
             'nama_project' => $request->nama_project,
             'deskripsi' => $request->deskripsi,
             'category_id' => $request->category_id,
-            'id_project_manager' => Auth::id(),
+            'marketing_id' => Auth::id(),
             'deadline' => $request->deadline,
             'status' => $request->status,
+            'id_project_manager' => $request->id_project_manager,
         ]);
 
         Log::debug('Project saved:', ['project' => $project->toArray()]);
@@ -129,8 +154,10 @@ class DashboardProjectController extends Controller
 
             // Simpan ke tabel ValueProject
             $valueProjectModel = ValueProject::create([
-                'project_id' => $project->id,
-                'value_project' => $valueProject, // Simpan dalam format numerik
+                'project_id'       => $project->id,
+                'value_project'    => $valueProject,
+                'payment_category' => $paymentCategory,
+                'amount'           => $amount,
             ]);
 
             // Log data setelah berhasil disimpan
@@ -229,21 +256,22 @@ class DashboardProjectController extends Controller
         return view('back-end.pages.project.show', compact('project', 'fiturWithProgress', 'groupedUsers', 'totalAll'));
     }
 
-    // Menampilkan form untuk edit project
     public function edit($id)
     {
-        $project = Project::with('jobTypes')->find($id);
+        $project = Project::with(['jobTypes', 'valueProject'])->find($id);
         $projectType = ProjectType::all();
         $categoryProject = CategoryProject::all();
         $jobTypes = CategoryProjectsDetail::with('jobType')->get();
+        $projectManagers = User::whereHas('role', function ($query) {
+            $query->where('name', 'Project Manager');
+        })->get();
 
-        return view('back-end.pages.project.edit', compact('project', 'categoryProject', 'jobTypes', 'projectType'));
+        return view('back-end.pages.project.edit', compact('project', 'categoryProject', 'jobTypes', 'projectType', 'projectManagers'));
     }
 
-    // Menyimpan pembaruan project
     public function update(Request $request, Project $project)
     {
-        if ($project->id_project_manager !== Auth::id()) {
+        if ($project->marketing_id !== Auth::id()) {
             abort(403);
         }
 
@@ -260,6 +288,10 @@ class DashboardProjectController extends Controller
             'job_types.*' => 'exists:job_types,id',
             'deadline' => 'nullable|date',
             'status' => 'required|in:on progress,completed',
+            'value_project' => 'nullable|numeric|min:0',
+            'id_project_manager' => 'nullable|exists:users,id',
+            'payment_category' => 'required|in:full_payment,dp,pelunasan',
+            'amount' => 'nullable|numeric|min:0',
         ]);
 
         $project->update([
@@ -269,7 +301,30 @@ class DashboardProjectController extends Controller
             'category_id' => $request->category_id,
             'deadline' => $request->deadline,
             'status' => $request->status,
+            'id_project_manager' => $request->id_project_manager,
         ]);
+
+        $valueProject = $request->value_project ?? 0;
+        $paymentCategory = $request->payment_category;
+        $amountInput = $request->amount ?? 0;
+
+        $existing = $project->valueProject;
+        if ($paymentCategory === 'full_payment') {
+            $amount = $valueProject;
+        } elseif ($paymentCategory === 'pelunasan') {
+            $amount = $valueProject;
+        } else {
+            $amount = $amountInput;
+        }
+
+        $project->valueProject()->updateOrCreate(
+            ['project_id' => $project->id],
+            [
+                'value_project' => $valueProject,
+                'payment_category' => $paymentCategory,
+                'amount' => $amount,
+            ]
+        );
 
         $project->jobTypes()->sync(
             collect($request->job_types ?? [])->mapWithKeys(function ($jobTypeId) use ($request) {
@@ -280,10 +335,9 @@ class DashboardProjectController extends Controller
         return redirect()->route('project.index')->with('success', 'Project berhasil diperbarui.');
     }
 
-    // Menghapus project
     public function destroy(Project $project)
     {
-        if ($project->id_project_manager !== Auth::id()) {
+        if ($project->marketing_id !== Auth::id()) {
             abort(403);
         }
 

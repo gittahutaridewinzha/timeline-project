@@ -11,7 +11,7 @@ class Project extends Model
 
     protected $table = 'project';
 
-    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id', 'deadline', 'status', 'id_project_type'];
+    protected $fillable = ['nama_project', 'deskripsi', 'id_project_manager', 'category_id', 'deadline', 'status', 'id_project_type', 'marketing_id'];
 
     public function ProjectManager()
     {
@@ -23,7 +23,6 @@ class Project extends Model
         return $this->belongsTo(CategoryProject::class, 'category_id');
     }
 
-    // Di CategoryProject.php
     public function jobTypes()
     {
         return $this->belongsToMany(JobType::class, 'project_job_types', 'project_id', 'job_id')->withPivot('category_id')->withTimestamps();
@@ -46,7 +45,7 @@ class Project extends Model
 
     public function valueProject()
     {
-        return $this->hasOne(ValueProject::class);
+        return $this->hasOne(ValueProject::class, 'project_id');
     }
 
     public function projectJobTypes()

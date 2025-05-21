@@ -15,13 +15,17 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="card-title mb-0">Manajemen Project</h4>
-                            <a href="{{ route('project.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> Tambah Project
-                            </a>
+
+                            @if ($user->role->name === 'Marketing')
+                                <a href="{{ route('project.create') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Tambah Project
+                                </a>
+                            @endif
+
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table id="myTable" class="table table-striped display w-100">
                                 <thead>
                                     <tr>
                                         <th>Nama Project</th>
@@ -44,36 +48,40 @@
                                                         aria-valuemin="0" aria-valuemax="100">
                                                         <span class="progress-text"
                                                             style="position: absolute; width: 100%; text-align: center; color: black; font-weight: bold; top: 50%; transform: translateY(-50%);">
-                                                            {{ number_format($project->persentase_pengerjaan , 2) }}%
+                                                            {{ number_format($project->persentase_pengerjaan, 2) }}%
                                                         </span>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href="{{ route('project.edit', $project->id) }}"
-                                                    class="btn btn-sm btn-warning text-white">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
+                                                @if ($user->role->name === 'Marketing')
+                                                    <a href="{{ route('project.edit', $project->id) }}"
+                                                        class="btn btn-sm btn-warning text-white">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
 
-                                                <a href="{{ route('fitur.index', ['project' => $project->id]) }}"
-                                                    class="btn btn-sm btn-primary text-white">
-                                                    <i class="bi bi-plus-circle"></i>
-                                                </a>
+                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ $project->id }}" title="Hapus">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                @endif
 
-                                                <a href="{{ route('penugasan.index', $project->id) }}"
-                                                    class="btn btn-sm btn-info text-white">
-                                                    <i class="bi bi-person-check"></i>
-                                                </a>
+                                                @if ($user->role->name === 'Project Manager')
+                                                    <a href="{{ route('fitur.index', ['project' => $project->id]) }}"
+                                                        class="btn btn-sm btn-primary text-white">
+                                                        <i class="bi bi-plus-circle"></i>
+                                                    </a>
 
-                                                <a href="{{ route('project.show', $project->id) }}"
-                                                    class="btn btn-sm btn-success text-white">
-                                                    <i class="bi bi-hourglass-split"></i>
-                                                </a>
+                                                    <a href="{{ route('penugasan.index', $project->id) }}"
+                                                        class="btn btn-sm btn-info text-white">
+                                                        <i class="bi bi-person-check"></i>
+                                                    </a>
 
-                                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteModal{{ $project->id }}" title="Hapus">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                    <a href="{{ route('project.show', $project->id) }}"
+                                                        class="btn btn-sm btn-success text-white">
+                                                        <i class="bi bi-hourglass-split"></i>
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                         <div class="modal fade" id="deleteModal{{ $project->id }}" tabindex="-1"

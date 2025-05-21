@@ -14,10 +14,12 @@
 
                             <div class="form-group mb-3">
                                 <label for="id_project_type">Pilih Tipe Project</label>
-                                <select name="id_project_type" id="id_project_type" class="form-select" required>
+                                <select name="id_project_type" id="id_project_type" class="form-select"
+                                    style="color: black;" required>
                                     <option value="">Pilih Tipe Project</option>
                                     @foreach ($projectType as $type)
-                                        <option value="{{ $type->id }}" {{ $project->id_project_type == $type->id ? 'selected' : '' }}>
+                                        <option value="{{ $type->id }}"
+                                            {{ $project->id_project_type == $type->id ? 'selected' : '' }}>
                                             {{ $type->name }}
                                         </option>
                                     @endforeach
@@ -37,12 +39,14 @@
 
                             <div class="form-group mb-3">
                                 <label for="deadline">Deadline</label>
-                                <input type="date" name="deadline" id="deadline" class="form-control" value="{{ old('deadline', $project->deadline) }}">
+                                <input type="date" name="deadline" id="deadline" class="form-control"
+                                    value="{{ old('deadline', $project->deadline) }}">
                             </div>
 
                             <div class="mb-3">
                                 <label for="category_id" class="form-label">Pilih Kategori Project</label>
-                                <select class="form-select" id="category_id" name="category_id" required>
+                                <select class="form-select" style="color: black;" id="category_id" name="category_id"
+                                    required>
                                     <option value="">Pilih Kategori Project</option>
                                     @foreach ($categoryProject as $category)
                                         <option value="{{ $category->id }}"
@@ -60,14 +64,16 @@
                                         <div class="job-type-item" id="job_type_wrapper_{{ $jobType->id }}">
                                             <span class="badge bg-primary d-flex align-items-center me-2 mb-2">
                                                 {{ $jobType->name }}
-                                                <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"
+                                                <button type="button" class="btn-close btn-close-white ms-2"
+                                                    aria-label="Remove"
                                                     onclick="removeJobType({{ $jobType->id }})"></button>
                                             </span>
-                                            <input type="hidden" name="job_types[]" value="{{ $jobType->id }}" id="job_type_input_{{ $jobType->id }}">
+                                            <input type="hidden" name="job_types[]" value="{{ $jobType->id }}"
+                                                id="job_type_input_{{ $jobType->id }}">
                                         </div>
                                     @endforeach
                                 </div>
-                                <select id="job_type_dropdown" class="form-select">
+                                <select id="job_type_dropdown" class="form-select" style="color: black;">
                                     <option value="">Pilih Pekerjaan</option>
                                     @foreach ($jobTypes as $jobType)
                                         @if (!$project->jobTypes->contains('id', $jobType->id))
@@ -78,10 +84,72 @@
                             </div>
 
                             <div class="form-group mb-3">
+                                <label for="value_project_display">Value Project</label>
+                                <div class="input-group">
+                                    <input type="text" id="value_project_display" class="form-control" placeholder="0,00"
+                                        value="{{ $project->valueProject ? number_format($project->valueProject->value_project, 0, ',', '.') : '' }}"
+                                        autocomplete="off" inputmode="numeric" readonly>
+                                </div>
+                                <input type="hidden" name="value_project" id="value_project"
+                                    value="{{ $project->valueProject->value_project ?? '' }}">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="payment_category">Kategori Pembayaran</label>
+                                <select name="payment_category" id="payment_category" class="form-select"
+                                    style="color: black"
+                                    {{ $project->valueProject->payment_category === 'full_payment' ? 'disabled' : '' }}>
+                                    <option value="full_payment"
+                                        {{ $project->valueProject->payment_category === 'full_payment' ? 'selected' : '' }}>
+                                        Full Payment
+                                    </option>
+                                    <option value="dp"
+                                        {{ $project->valueProject->payment_category === 'dp' ? 'selected' : '' }}>
+                                        DP
+                                    </option>
+                                    <option value="pelunasan"
+                                        {{ $project->valueProject->payment_category === 'pelunasan' ? 'selected' : '' }}>
+                                        Pelunasan
+                                    </option>
+                                </select>
+                            </div>
+
+                            @php
+                                $value = $project->valueProject->value_project ?? 0;
+                                $amount = $project->valueProject->amount ?? 0;
+                                $sisaPembayaran = $value - $amount;
+                            @endphp
+
+                            <div class="form-group mb-3" id="dp_info" style="display: none;">
+                                <label for="dp_remaining">Sisa Pembayaran</label>
+                                <input type="text" class="form-control" id="dp_remaining" readonly>
+                            </div>
+
+                            <input type="hidden" name="amount" id="amount" value="{{ $amount }}">
+
+                            <div class="mb-3">
+                                <label for="project_manager" class="form-label">Project Manager</label>
+                                <select name="id_project_manager" id="project_manager" class="form-select"
+                                    style="color: black" required>
+                                    <option value="">Pilih Project Manager</option>
+                                    @foreach ($projectManagers as $pm)
+                                        <option value="{{ $pm->id }}"
+                                            {{ (string) $pm->id === (string) $project->id_project_manager ? 'selected' : '' }}>
+                                            {{ $pm->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
                                 <label for="status">Status</label>
-                                <select name="status" id="status" class="form-control" {{ $project->status === 'completed' ? 'disabled' : '' }}>
-                                    <option value="on progress" {{ $project->status === 'on progress' ? 'selected' : '' }}>On Progress</option>
-                                    <option value="completed" {{ $project->status === 'completed' ? 'selected' : '' }}>Completed</option>
+                                <select name="status" id="status" class="form-select" style="color: black"
+                                    {{ $project->status === 'completed' ? 'disabled' : '' }}>
+                                    <option value="on progress"
+                                        {{ $project->status === 'on progress' ? 'selected' : '' }}>
+                                        On Progress</option>
+                                    <option value="completed" {{ $project->status === 'completed' ? 'selected' : '' }}>
+                                        Completed</option>
                                 </select>
 
                                 @if ($project->status === 'completed')
@@ -112,7 +180,7 @@
             categoryDropdown.dispatchEvent(new Event('change'));
         });
 
-        categoryDropdown.addEventListener('change', function () {
+        categoryDropdown.addEventListener('change', function() {
             const selectedCategoryId = this.value;
 
             // Kosongkan dropdown & simpan ulang currentJobTypes
@@ -148,7 +216,7 @@
             }
         });
 
-        jobDropdown.addEventListener('change', function () {
+        jobDropdown.addEventListener('change', function() {
             const selectedJobId = this.value;
             const selectedJobName = this.options[this.selectedIndex].text;
 
@@ -202,4 +270,60 @@
         }
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentSelect = document.getElementById('payment_category');
+            const valueDisplay = document.getElementById('value_project_display');
+            const valueHidden = document.getElementById('value_project');
+            const dpInfo = document.getElementById('dp_info');
+            const dpRemaining = document.getElementById('dp_remaining');
+            const amountField = document.getElementById('amount');
+
+            const originalAmount = parseInt("{{ $amount }}") || 0;
+
+            function formatRupiah(value) {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                }).format(value);
+            }
+
+            function parseRupiah(str) {
+                return parseInt(str.replace(/[^0-9]/g, '')) || 0;
+            }
+
+            function updateAmountLogic() {
+                const value = parseRupiah(valueDisplay?.value || "0");
+                valueHidden.value = value;
+
+                const category = paymentSelect.value;
+
+                if (category === 'full_payment') {
+                    amountField.value = value;
+                    dpInfo.style.display = 'none';
+                } else if (category === 'pelunasan') {
+                    const remaining = value - originalAmount;
+                    dpRemaining.value = formatRupiah(remaining > 0 ? remaining : 0);
+                    amountField.value = originalAmount;
+                    dpInfo.style.display = 'block';
+                } else {
+                    dpInfo.style.display = 'none';
+                    amountField.value = originalAmount;
+                }
+            }
+
+            if (valueDisplay) {
+                valueDisplay.addEventListener('input', () => {
+                    const raw = valueDisplay.value;
+                    const cleaned = raw.replace(/[^0-9]/g, '');
+                    valueDisplay.value = formatRupiah(cleaned);
+                    updateAmountLogic();
+                });
+            }
+
+            paymentSelect.addEventListener('change', updateAmountLogic);
+            updateAmountLogic();
+        });
+    </script>
 @endsection
