@@ -1,37 +1,57 @@
 @extends('back-end.layouts.main')
 
 @section('content')
-    <div class="main-panel" style="margin-top: 20px;">
+    <div class="main-panel" style="margin-top: 35px;">
         <div class="content-wrapper">
-            <h4 class="card-title mb-4">Proyek yang Diikuti</h4>
+            <h4 class="card-title mb-4 font-weight-bold text-primary">📁 Proyek yang Diikuti</h4>
 
-            @if($projects->isEmpty())
-                <div class="alert alert-warning" role="alert">
-                    Anda belum terlibat dalam proyek manapun.
-                </div>
-            @else
+                @if($projects->isEmpty())
+                    <div class="alert alert-warning text-center" role="alert">
+                        <i class="mdi mdi-alert-circle-outline"></i> Anda belum terlibat dalam proyek manapun.
+                    </div>
+                @else
                 <div class="row">
                     @foreach ($projects as $project)
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm">
+                        <div class="col-lg-6 col-md-12 mb-4">
+                            <div class="card border-left-primary shadow-sm rounded-lg h-100">
                                 <div class="card-body">
-                                    <p class="card-text"><strong>Nama Proyek:</strong> {{ $project->nama_project }}</p>
-                                    <p class="card-text">
-                                        <strong>Job Type:</strong>
+                                    <h5 class="card-title text-dark font-weight-bold">
+                                        <i class="mdi mdi-briefcase-outline text-primary"></i>
+                                        {{ $project->nama_project }}
+                                    </h5>
+
+                                    <p class="mb-1">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-tag-multiple text-success"></i>
+                                            Kategori:
+                                            {{ $project->CategoryProject->name ?? 'Tidak ada kategori' }}
+                                        </small>
+                                    </p>
+
+                                    <hr>
+
+                                    <p class="mb-2">
+                                        <strong class="text-secondary">Job Type:</strong>
                                         @php
                                             $userJobTypes = $project->taskDistributions->where('user_id', Auth::id())->pluck('jobType.name')->unique();
                                         @endphp
 
                                         @if($userJobTypes->isEmpty())
-                                            <span class="text-muted">Tidak ada</span>
+                                            <span class="badge badge-secondary">Tidak ada</span>
                                         @else
-                                            {{ $userJobTypes->implode(', ') }}
+                                            @foreach($userJobTypes as $jobType)
+                                                <span class="badge badge-info">{{ $jobType }}</span>
+                                            @endforeach
                                         @endif
                                     </p>
 
-                                    <a href="{{ route('pengerjaan.tambah', $project->id) }}" class="btn btn-primary btn-sm">
-                                        Lihat Detail
-                                    </a>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <a href="{{ route('pengerjaan.tambah', $project->id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="mdi mdi-eye-outline"></i> Lihat Detail
+                                        </a>
+                                    </div>
+
+
                                 </div>
                             </div>
                         </div>

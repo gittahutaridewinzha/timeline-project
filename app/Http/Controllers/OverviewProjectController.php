@@ -10,7 +10,7 @@ class OverviewProjectController extends Controller
     public function index()
     {
         $project = Project::with(['fiturs.detailFiturs.pengerjaans.user'])
-            ->paginate(10);
+            ->get();
 
         $project->map(function ($proj) {
             $totalProgress = 0;
