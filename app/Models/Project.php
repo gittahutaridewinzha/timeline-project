@@ -20,7 +20,7 @@ class Project extends Model
 
     public function CategoryProject()
     {
-        return $this->belongsTo(CategoryProject::class);
+        return $this->belongsTo(CategoryProject::class, 'category_id');
     }
 
     // Di CategoryProject.php
@@ -58,5 +58,4 @@ class Project extends Model
     {
         return $this->belongsTo(ProjectType::class, 'id_project_type');
     }
-
 }

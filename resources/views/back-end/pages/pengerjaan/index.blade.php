@@ -3,7 +3,7 @@
 @section('content')
     <div class="main-panel" style="margin-top: 35px;">
         <div class="content-wrapper">
-            <h4 class="card-title mb-4">Proyek yang Diikuti</h4>
+            <h4 class="card-title mb-4 font-weight-bold text-primary">📁 Proyek yang Diikuti</h4>
 
                 @if($projects->isEmpty())
                     <div class="alert alert-warning text-center" role="alert">
