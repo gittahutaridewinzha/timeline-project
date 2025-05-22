@@ -11,7 +11,7 @@ class Pengerjaan extends Model
 
     protected $table = 'pengerjaans';
 
-    protected $fillable = ['user_id', 'detail_fiturs_id', 'pengerjaan'];
+    protected $fillable = ['user_id', 'detail_fiturs_id', 'pengerjaan','project_job_type_id'];
 
     /**
      * Relasi ke model User
@@ -43,12 +43,15 @@ class Pengerjaan extends Model
     {
         return $this->belongsTo(Project::class); // pastikan relasi ini benar
     }
+    public function taskDistributions()
+    {
+        return $this->hasMany(TaskDistribution::class);
+    }
+    public function projectJobType()
+    {
+        return $this->belongsTo(ProjectJobTypes::class);
+    }
 
-    // Project.php
-public function taskDistributions()
-{
-    return $this->hasMany(TaskDistribution::class);
-}
 
 
 }

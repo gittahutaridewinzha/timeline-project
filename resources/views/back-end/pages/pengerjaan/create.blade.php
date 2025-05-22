@@ -175,7 +175,7 @@
                                                     <input type="number" name="pengerjaan[]"
                                                         class="form-control {{ $hasRevisi ? 'bg-warning-subtle border-warning' : '' }}"
                                                         placeholder="%" min="0" max="100" required
-                                                        value="{{ old('pengerjaan.' . $loop->index, $progress[$fitur->id]->pengerjaan ?? '') }}">
+                                                        value="{{ old('pengerjaan.' . $loop->index, $progress[$fitur->id]->pengerjaan ?? 0) }}">
                                                 </td>
                                             </tr>
                                         @endforeach

@@ -3,7 +3,7 @@
 @section('content')
     <div class="main-panel" style="margin-top: 35px;">
         <div class="content-wrapper">
-            <h4 class="card-title mb-4 font-weight-bold text-primary">📁 Proyek yang Diikuti</h4>
+            <h2 class="text-center mb-4">Proyek Yang Anda Ikuti</h2>
 
                 @if($projects->isEmpty())
                     <div class="alert alert-warning text-center" role="alert">
@@ -12,7 +12,7 @@
                 @else
                 <div class="row">
                     @foreach ($projects as $project)
-                        <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="col-lg-6 col-md-12 mb-4" style="margin-top: 20px;">
                             <div class="card border-left-primary shadow-sm rounded-lg h-100">
                                 <div class="card-body">
                                     <h5 class="card-title text-dark font-weight-bold">
@@ -20,12 +20,12 @@
                                         {{ $project->nama_project }}
                                     </h5>
 
-                                    <p class="mb-1">
-                                        <small class="text-muted">
+                                    <p class="mb-2">
+                                        <div class="text-muted" style="font-size: 14px;">
                                             <i class="mdi mdi-tag-multiple text-success"></i>
                                             Kategori:
                                             {{ $project->CategoryProject->name ?? 'Tidak ada kategori' }}
-                                        </small>
+                                        </div>
                                     </p>
 
                                     <hr>

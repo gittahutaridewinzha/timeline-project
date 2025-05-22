@@ -7,9 +7,11 @@ use App\Models\Pengerjaan;
 use App\Models\Project;
 use App\Models\ProjectJobTypes;
 use App\Models\RevisiProject;
+use App\Models\TaskDistribution;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DashboardPengerjaanController extends Controller
@@ -75,31 +77,107 @@ class DashboardPengerjaanController extends Controller
             'detail_fiturs_id' => 'required|array',
             'pengerjaan' => 'required|array',
             'detail_fiturs_id.*' => 'exists:detail_fiturs,id',
-            'pengerjaan.*' => 'numeric|min:0|max:100',
+            'pengerjaan.*' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        foreach ($request->detail_fiturs_id as $index => $detailFiturId) {
-            $existing = Pengerjaan::where('user_id', Auth::id())->where('detail_fiturs_id', $detailFiturId)->first();
+        $firstDetailFitur = DetailFitur::with('fitur')->find($request->detail_fiturs_id[0]);
+        if (!$firstDetailFitur || !$firstDetailFitur->fitur) {
+            return redirect()->back()->withErrors('Fitur tidak ditemukan.');
+        }
 
-            if ($existing) {
-                Log::info("Updating pengerjaan ID {$existing->id} to " . $request->pengerjaan[$index]);
-            } else {
-                Log::info("Creating pengerjaan baru untuk detail_fitur_id {$detailFiturId}");
+        $projectId = $firstDetailFitur->fitur->project_id;
+        $project = Project::find($projectId);
+        if (!$project) {
+            return redirect()->back()->withErrors('Project tidak ditemukan.');
+        }
+
+        if ($project->status === 'completed') {
+            return redirect()
+                ->route('pengerjaan.tambah', ['project_id' => $projectId])
+                ->withErrors('Project sudah selesai 100% dan tidak dapat diubah lagi.');
+        }
+
+        $userId = Auth::id();
+        // Simpan/update pengerjaan
+        foreach ($request->detail_fiturs_id as $index => $detailFiturId) {
+            $progress = $request->pengerjaan[$index] ?? 0;  // Kalau null, pakai 0
+
+            // Bisa juga cek kalau kosong string atau null
+            if ($progress === null || $progress === '') {
+                $progress = 0;
             }
 
-            Pengerjaan::updateOrCreate(
-                [
-                    'user_id' => Auth::id(),
+            $pengerjaan = Pengerjaan::where('user_id', $userId)
+                ->where('detail_fiturs_id', $detailFiturId)
+                ->first();
+
+            if ($pengerjaan) {
+                $pengerjaan->pengerjaan = $progress;
+                $pengerjaan->save();
+            } else {
+                // Cari project_job_type_id dulu
+                $detailFitur = DetailFitur::with('fitur')->find($detailFiturId);
+                $pjProjectId = $detailFitur->fitur->project_id;
+
+                $jobTypeId = TaskDistribution::where('project_id', $pjProjectId)
+                    ->where('user_id', $userId)
+                    ->value('job_types_id');
+
+                $projectJobTypeId = ProjectJobTypes::where('project_id', $pjProjectId)
+                    ->where('job_id', $jobTypeId)
+                    ->value('id');
+
+                Pengerjaan::create([
+                    'user_id' => $userId,
                     'detail_fiturs_id' => $detailFiturId,
-                ],
-                [
-                    'pengerjaan' => $request->pengerjaan[$index],
-                ],
-            );
+                    'pengerjaan' => $progress,
+                    'project_job_type_id' => $projectJobTypeId,
+                ]);
+            }
+        }
+
+
+
+        // Ambil semua project_job_types untuk project ini
+        $jobTypes = ProjectJobTypes::where('project_id', $projectId)->pluck('job_id');
+
+        // Ambil semua detail fitur dari project ini
+        $detailFiturIds = DetailFitur::whereHas('fitur', function ($q) use ($projectId) {
+            $q->where('project_id', $projectId);
+        })->pluck('id');
+
+        $isComplete = true;
+
+        foreach ($jobTypes as $jobId) {
+            foreach ($detailFiturIds as $detailFiturId) {
+                $progress = Pengerjaan::where('detail_fiturs_id', $detailFiturId)
+                    ->whereHas('projectJobType', function ($q) use ($jobId) {
+                        $q->where('job_id', $jobId);
+                    })
+                    ->max('pengerjaan');
+
+                if ($progress < 100) {
+                    $isComplete = false;
+                    break 2;
+                }
+            }
+        }
+        // Update status project
+        if ($isComplete) {
+            if ($project->status !== 'completed') {
+                $project->status = 'completed';
+                $project->save();
+            }
+        } else {
+            if ($project->status === 'completed') {
+                $project->status = 'on progress';
+                $project->save();
+            }
         }
 
         return redirect()
-            ->route('pengerjaan.tambah', ['project_id' => $request->project_id])
+            ->route('pengerjaan.tambah', ['project_id' => $projectId])
             ->with('success', 'Pengerjaan berhasil diubah.');
     }
+
 }
