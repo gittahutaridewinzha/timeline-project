@@ -332,6 +332,7 @@ class DashboardProjectController extends Controller
             })
         );
 
+
         return redirect()->route('project.index')->with('success', 'Project berhasil diperbarui.');
     }
 

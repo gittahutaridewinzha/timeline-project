@@ -94,6 +94,7 @@
                                     value="{{ $project->valueProject->value_project ?? '' }}">
                             </div>
 
+
                             <div class="form-group mb-3">
                                 <label for="payment_category">Kategori Pembayaran</label>
                                 <select name="payment_category" id="payment_category" class="form-select"
