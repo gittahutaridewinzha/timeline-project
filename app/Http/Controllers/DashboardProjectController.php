@@ -336,6 +336,7 @@ class DashboardProjectController extends Controller
         return redirect()->route('project.index')->with('success', 'Project berhasil diperbarui.');
     }
 
+
     public function destroy(Project $project)
     {
         if ($project->marketing_id !== Auth::id()) {

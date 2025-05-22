@@ -12,6 +12,7 @@
                             @csrf
                             @method('PUT')
 
+
                             <div class="form-group mb-3">
                                 <label for="id_project_type">Pilih Tipe Project</label>
                                 <select name="id_project_type" id="id_project_type" class="form-select"

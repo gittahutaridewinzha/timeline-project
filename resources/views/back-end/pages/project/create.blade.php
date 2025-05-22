@@ -78,6 +78,7 @@
                                 <input type="text" id="value_project_display" class="form-control" style="color: black"
                                     placeholder="Rp 0,00" autocomplete="off" inputmode="numeric">
                                 <input type="hidden" name="value_project" id="value_project">
+
                             </div>
 
                             <div class="form-group mb-3">
